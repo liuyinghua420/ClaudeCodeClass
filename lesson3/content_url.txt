@@ -1,0 +1,4 @@
+https://martinfowler.com/articles/harness-engineering.html
+
+https://www.anthropic.com/engineering/harness-design-long-running-apps
+

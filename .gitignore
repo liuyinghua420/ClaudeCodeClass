@@ -1,0 +1,29 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Backup / temp files
+*~
+*.bak
+*.tmp
+*.swp
+
+# Python (used by generate_ppt.py scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.Python
+*.egg-info/
+
+# IDE / editor
+.idea/
+.vscode/
+*.iml
+
+# OS / logs
+Thumbs.db
+*.log

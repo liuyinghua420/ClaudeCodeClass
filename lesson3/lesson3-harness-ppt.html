@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harness Engineering · 给 AI 编程助手装上"缰绳"</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --ink: #1d1d1f;
+    --ink-soft: #6e6e73;
+    --ink-softer: #86868b;
+    --paper: #fbfbfd;
+    --line: #d2d2d7;
+    --accent: #0071e3;
+    --accent-soft: #f5f5f7;
+    --warm: #ff9f0a;
+    --green: #34c759;
+    --red: #ff3b30;
+    --purple: #af52de;
+  }
+
+  html, body {
+    height: 100%;
+    background: #000;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC",
+                 "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  .deck {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    background: var(--paper);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6vh 9vw;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    pointer-events: none;
+    overflow: auto;
+  }
+
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  .slide.dark {
+    background: #000;
+    color: #f5f5f7;
+  }
+  .slide.dark .eyebrow { color: #a1a1a6; }
+  .slide.dark h1, .slide.dark h2, .slide.dark h3, .slide.dark h4 { color: #f5f5f7; }
+  .slide.dark .lede, .slide.dark p { color: #a1a1a6; }
+  .slide.dark .card { background: #1c1c1e; border-color: #2c2c2e; color: #f5f5f7; }
+  .slide.dark .card .label { color: #a1a1a6; }
+  .slide.dark .card p { color: #a1a1a6; }
+  .slide.dark ul.bullets li { color: #f5f5f7; border-color: #2c2c2e; }
+  .slide.dark .slide-num { color: #6e6e73; }
+  .slide.dark .node { background: #1c1c1e; border-color: #2c2c2e; color: #f5f5f7; }
+
+  .slide.tinted-blue { background: linear-gradient(135deg, #f0f7ff 0%, #fbfbfd 100%); }
+  .slide.tinted-warm { background: linear-gradient(135deg, #fff7ed 0%, #fbfbfd 100%); }
+  .slide.tinted-green { background: linear-gradient(135deg, #eefff2 0%, #fbfbfd 100%); }
+
+  .eyebrow {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+
+  h1 {
+    font-size: clamp(2.6rem, 5.5vw, 6rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+    color: var(--ink);
+  }
+
+  h2 {
+    font-size: clamp(2rem, 4vw, 3.8rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    margin-bottom: 1.2rem;
+    color: var(--ink);
+  }
+
+  h3 {
+    font-size: clamp(1.2rem, 1.7vw, 1.7rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.5rem;
+  }
+
+  h4 {
+    font-size: clamp(1rem, 1.3vw, 1.2rem);
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+
+  .lede {
+    font-size: clamp(1.05rem, 1.5vw, 1.45rem);
+    color: var(--ink-soft);
+    font-weight: 400;
+    line-height: 1.5;
+    max-width: 64ch;
+  }
+
+  .small {
+    font-size: clamp(0.9rem, 1.05vw, 1rem);
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+
+  .accent { color: var(--accent); }
+  .warm { color: var(--warm); }
+  .red { color: var(--red); }
+  .green { color: var(--green); }
+  .purple { color: var(--purple); }
+
+  .gradient-text {
+    background: linear-gradient(120deg, #0071e3 0%, #af52de 60%, #ff375f 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+    margin-top: 2rem;
+  }
+
+  .grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 1.6rem 1.8rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .card.tight { padding: 1.2rem 1.4rem; }
+
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+  }
+
+  .card .label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .card p {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+
+  .card p + p { margin-top: 0.6rem; }
+
+  .card strong { color: var(--ink); }
+  .slide.dark .card strong { color: #f5f5f7; }
+
+  .big-stat {
+    font-size: clamp(3rem, 7vw, 7rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .pill {
+    display: inline-block;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--ink);
+    font-size: 0.88rem;
+    font-weight: 500;
+    margin-right: 0.4rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .pill.accent-pill { background: #e6f2ff; color: var(--accent); }
+  .pill.warm-pill { background: #fff2dc; color: #b45309; }
+  .pill.green-pill { background: #dcfce7; color: #166534; }
+  .pill.red-pill { background: #ffe0de; color: #b91c1c; }
+
+  .quote {
+    font-size: clamp(1.4rem, 2.4vw, 2.4rem);
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+    max-width: 24ch;
+  }
+
+  .quote .attr {
+    display: block;
+    margin-top: 1.2rem;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  ul.bullets {
+    list-style: none;
+    margin-top: 1.2rem;
+  }
+
+  ul.bullets li {
+    font-size: clamp(1rem, 1.35vw, 1.3rem);
+    line-height: 1.5;
+    padding: 0.55rem 0;
+    color: var(--ink);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
+  ul.bullets li:last-child { border-bottom: none; }
+
+  ul.bullets li::before {
+    content: "";
+    flex-shrink: 0;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-top: 0.65rem;
+  }
+
+  ul.bullets.dense li { font-size: clamp(0.95rem, 1.2vw, 1.15rem); padding: 0.45rem 0; }
+
+  .nav {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(0,0,0,0.06);
+    z-index: 100;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+
+  .nav button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--ink);
+    font-size: 1.05rem;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav button:hover { background: rgba(0,0,0,0.06); }
+
+  .progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: var(--accent);
+    transition: width 0.4s ease;
+    z-index: 200;
+  }
+
+  .diagram {
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .node {
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 16px;
+    padding: 1rem 1.3rem;
+    font-size: 1rem;
+    font-weight: 600;
+    min-width: 120px;
+    text-align: center;
+  }
+
+  .node.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .node.accent { border-color: var(--accent); color: var(--accent); }
+  .node.warm { border-color: var(--warm); color: #b45309; }
+  .node.green { border-color: var(--green); color: #166534; }
+  .node.red { border-color: var(--red); color: #b91c1c; }
+
+  .arrow {
+    font-size: 1.4rem;
+    color: var(--ink-soft);
+  }
+
+  .vs {
+    display: flex;
+    align-items: stretch;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .vs > div {
+    flex: 1;
+    padding: 1.8rem;
+    border-radius: 20px;
+  }
+
+  .vs .left { background: #f5f5f7; }
+  .vs .right { background: #fff7ed; }
+  .vs .good { background: #f0fdf4; }
+  .vs .bad { background: #fef2f2; }
+
+  .vs h3 { margin-bottom: 0.8rem; }
+  .vs p { color: var(--ink-soft); line-height: 1.55; font-size: 0.95rem; }
+  .vs p + p { margin-top: 0.5rem; }
+  .vs .tag { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin-bottom: 0.3rem; font-weight: 600; }
+
+  .timeline {
+    margin-top: 2rem;
+    display: flex;
+    gap: 0.8rem;
+  }
+
+  .timeline .step {
+    flex: 1;
+    padding: 1.2rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+  }
+
+  .timeline .num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .timeline .step p {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  .footer-note {
+    position: absolute;
+    bottom: 5vh;
+    left: 9vw;
+    right: 9vw;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+
+  .slide-num {
+    position: absolute;
+    top: 3vh;
+    right: 4vw;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.05em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .compare-table {
+    width: 100%;
+    margin-top: 1.5rem;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .compare-table th, .compare-table td {
+    text-align: left;
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--line);
+    font-size: 1rem;
+  }
+
+  .compare-table th {
+    color: var(--ink-soft);
+    font-weight: 500;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .slide.dark .compare-table th,
+  .slide.dark .compare-table td { border-color: #2c2c2e; }
+
+  .code {
+    background: #1c1c1e;
+    color: #f5f5f7;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    padding: 1.2rem 1.4rem;
+    border-radius: 14px;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    overflow-x: auto;
+    margin-top: 1rem;
+  }
+
+  .code .c { color: #6e6e73; }
+  .code .k { color: #ff9f0a; }
+  .code .s { color: #34c759; }
+  .code .n { color: #64d2ff; }
+
+  .callout {
+    background: #fffbeb;
+    border-left: 4px solid var(--warm);
+    padding: 1rem 1.2rem;
+    border-radius: 8px;
+    margin-top: 1.2rem;
+    font-size: 0.98rem;
+    line-height: 1.55;
+  }
+
+  .callout strong { color: #b45309; }
+
+  .slide.dark .callout { background: #2c2416; color: #f5f5f7; }
+
+  .chip-row { margin-top: 1rem; }
+
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    margin-top: 2rem;
+    align-items: center;
+  }
+
+  .big-arrow {
+    font-size: 4rem;
+    color: var(--ink-softer);
+    text-align: center;
+    margin: 0 1rem;
+  }
+
+  .checklist {
+    list-style: none;
+    margin-top: 1.2rem;
+  }
+
+  .checklist li {
+    padding: 0.6rem 0;
+    font-size: clamp(1rem, 1.3vw, 1.25rem);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .checklist li::before {
+    content: "✓";
+    color: var(--green);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .checklist li.x::before {
+    content: "✕";
+    color: var(--red);
+  }
+
+  .slide.dark .checklist li { border-color: #2c2c2e; color: #f5f5f7; }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="deck" id="deck">
+
+  <!-- 1. Cover -->
+  <section class="slide dark active">
+    <div class="eyebrow">A Beginner's Guide · 2026</div>
+    <h1>Harness<br><span class="gradient-text">Engineering</span></h1>
+    <p class="lede" style="margin-top: 1.8rem;">
+      给 AI 编程助手装上"缰绳"—— <br>
+      让它写出真正能用的代码。
+    </p>
+    <div class="footer-note" style="color:#6e6e73;">
+      Based on Martin Fowler · Anthropic Engineering · 30 页 · 为零基础成年人整理
+    </div>
+  </section>
+
+  <!-- 2. Why this matters -->
+  <section class="slide tinted-blue">
+    <div class="eyebrow">为什么你该关心</div>
+    <h2>AI 写代码已经很强了,<br>但它会<span class="red">骗你</span>。</h2>
+    <div class="grid-3">
+      <div class="card tight">
+        <div class="label">现实 1</div>
+        <h3>写了,但不对</h3>
+        <p>代码跑得起来,逻辑却错了。表面上"完成了"。</p>
+      </div>
+      <div class="card tight">
+        <div class="label">现实 2</div>
+        <h3>自我感觉良好</h3>
+        <p>AI 会自信地说:"已完成,并通过所有测试。"可能一个测试都没跑。</p>
+      </div>
+      <div class="card tight">
+        <div class="label">现实 3</div>
+        <h3>重复犯同一个错</h3>
+        <p>你纠正一次,它改。下次新会话,它又犯一模一样的错。</p>
+      </div>
+    </div>
+    <p class="lede" style="margin-top: 2rem;">
+      解法不是"换更强的模型",而是 —— <strong>给它装上缰绳</strong>。
+    </p>
+    <div class="slide-num">02 · 30</div>
+  </section>
+
+  <!-- 3. Analogy -->
+  <section class="slide">
+    <div class="eyebrow">先讲个比喻</div>
+    <h2>Harness 原本是什么?</h2>
+    <p class="lede">
+      Harness 的本意是 <strong>马具 / 缰绳</strong>。<br>
+      它不让马跑得更快,但它做了三件事 ——
+    </p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="label">① 引导方向</div>
+        <p>缰绳告诉马"去哪儿"。对应 AI:<br><strong>给它上下文和规则。</strong></p>
+      </div>
+      <div class="card">
+        <div class="label">② 及时拉回</div>
+        <p>跑偏了立刻反馈。对应 AI:<br><strong>测试、Lint、类型检查。</strong></p>
+      </div>
+      <div class="card">
+        <div class="label">③ 解放骑手</div>
+        <p>骑手不用亲自跑。对应你:<br><strong>不必每行手写,只管设计。</strong></p>
+      </div>
+    </div>
+    <div class="callout">
+      💡 <strong>重点:</strong> 没有马,缰绳毫无意义。没有缰绳,马乱跑。<strong>AI + Harness = 能用</strong>。
+    </div>
+    <div class="slide-num">03 · 30</div>
+  </section>
+
+  <!-- 4. Formal definition -->
+  <section class="slide">
+    <div class="eyebrow">正式定义</div>
+    <h2>什么是 <span class="accent">Harness Engineering</span>?</h2>
+    <div class="split">
+      <div>
+        <p class="quote" style="font-size: 1.7rem; max-width: 100%;">
+          "<strong>AI Agent 中<br>除了模型本身<br>以外的一切。</strong>"
+          <span class="attr">— Martin Fowler</span>
+        </p>
+      </div>
+      <div>
+        <h4 style="color: var(--ink-soft); margin-bottom: 0.8rem;">具体包括:</h4>
+        <ul class="bullets dense">
+          <li>给 AI 看的<strong>上下文</strong>(已有代码、文档)</li>
+          <li>AI 能调用的<strong>工具</strong>(读文件、跑测试、搜网页)</li>
+          <li>约束它的<strong>规则</strong>(代码风格、架构边界)</li>
+          <li>验证输出的<strong>检查器</strong>(测试、Lint、类型)</li>
+          <li>多个 AI 之间的<strong>流程编排</strong></li>
+        </ul>
+      </div>
+    </div>
+    <div class="slide-num">04 · 30</div>
+  </section>
+
+  <!-- 5. Two goals -->
+  <section class="slide tinted-blue">
+    <div class="eyebrow">Harness 的两个目标</div>
+    <h2>一个好缰绳,<br>帮 AI 做到这两件事:</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="label">目标 ①</div>
+        <h3 style="color: var(--accent);">第一次就写对</h3>
+        <p>通过事前引导,让 AI 在下笔前就"知道"这个项目的规矩、边界、约定。</p>
+        <p>好比新员工入职前先看完员工手册,而不是上来就乱改代码。</p>
+      </div>
+      <div class="card">
+        <div class="label">目标 ②</div>
+        <h3 style="color: var(--purple);">能自己发现并改错</h3>
+        <p>写完后立刻有反馈:测试失败?Lint 报警?类型不对?AI 自己读报告,自己改。</p>
+        <p>好比写完作业先自己对答案,再交给老师。</p>
+      </div>
+    </div>
+    <p class="lede" style="margin-top: 1.8rem; font-size: 1.1rem;">
+      两件事合起来,让 <strong>人</strong> 从"一行行审"解放出来,去做"设计"。
+    </p>
+    <div class="slide-num">05 · 30</div>
+  </section>
+
+  <!-- 6. Two pillars -->
+  <section class="slide">
+    <div class="eyebrow">两根支柱</div>
+    <h2>Guides &amp; Sensors<br><span style="color: var(--ink-soft); font-weight: 500;">引导 + 反馈</span></h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="label">Feedforward · 前馈</div>
+        <h3>Guides 引导</h3>
+        <p><strong>动手之前</strong>给 AI 的"地图"。</p>
+        <p>👉 示例代码 / 代码规范 / README / 架构文档 / 类似场景的过往实现。</p>
+        <p style="color: var(--ink);"><strong>作用:让它少犯错。</strong></p>
+      </div>
+      <div class="card">
+        <div class="label">Feedback · 反馈</div>
+        <h3>Sensors 传感器</h3>
+        <p><strong>动手之后</strong>给 AI 的"体检报告"。</p>
+        <p>👉 单元测试 / Lint / 类型检查 / 另一个 AI 评审 / 生产监控告警。</p>
+        <p style="color: var(--ink);"><strong>作用:让它能改错。</strong></p>
+      </div>
+    </div>
+    <div class="callout">
+      ⚠️ <strong>只有一根支柱的后果:</strong><br>
+      只有引导 → AI 不知道规则有没有被遵守,重复犯错。<br>
+      只有反馈 → AI 每次都从零摸索,效率很低。<br>
+      <strong>两个都要,缺一不可。</strong>
+    </div>
+    <div class="slide-num">06 · 30</div>
+  </section>
+
+  <!-- 7. Concrete Guides examples -->
+  <section class="slide tinted-green">
+    <div class="eyebrow">Guides 具体长什么样</div>
+    <h2>"引导" 的日常例子</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="label">例子 1 · 项目说明文档</div>
+        <p><strong>CLAUDE.md / README.md</strong></p>
+        <p>写清楚:本项目用什么框架、命名约定、禁止哪些依赖、测试怎么跑。<br>
+        AI 每次会话开头自动读一次。</p>
+      </div>
+      <div class="card">
+        <div class="label">例子 2 · 示例代码</div>
+        <p><strong>类似的旧功能放在它能看到的地方</strong></p>
+        <p>"按 <code>src/features/login</code> 的风格来实现 signup。"<br>
+        AI 会模仿你已有的好样子。</p>
+      </div>
+      <div class="card">
+        <div class="label">例子 3 · 结构化提示</div>
+        <p><strong>任务模板</strong></p>
+        <p>先写清楚"需求 / 边界 / 不要做 / 完成标准"再让 AI 动手,<br>
+        比"帮我写个登录"稳定得多。</p>
+      </div>
+      <div class="card">
+        <div class="label">例子 4 · 工具约束</div>
+        <p><strong>只开放必要工具</strong></p>
+        <p>不需要网络的任务就别给它联网权限。<br>
+        减少它"自作主张"的空间。</p>
+      </div>
+    </div>
+    <div class="slide-num">07 · 30</div>
+  </section>
+
+  <!-- 8. Concrete Sensors examples -->
+  <section class="slide tinted-warm">
+    <div class="eyebrow">Sensors 具体长什么样</div>
+    <h2>"反馈" 的日常例子</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="label">例子 1 · 自动测试</div>
+        <p><strong>pytest / jest / go test</strong></p>
+        <p>AI 写完代码立刻跑测试,看到红色立刻改。<br>
+        <strong>最便宜、最可靠的缰绳。</strong></p>
+      </div>
+      <div class="card">
+        <div class="label">例子 2 · 类型检查</div>
+        <p><strong>TypeScript / mypy / Pyright</strong></p>
+        <p>编译器报错就是 AI 的第一道"老师"。<br>
+        强类型语言天然适合 harness。</p>
+      </div>
+      <div class="card">
+        <div class="label">例子 3 · Linter &amp; 格式化</div>
+        <p><strong>ESLint / Ruff / Prettier</strong></p>
+        <p>自动修复风格问题,AI 不需要去猜"我该用几个空格"。</p>
+      </div>
+      <div class="card">
+        <div class="label">例子 4 · 真浏览器验证</div>
+        <p><strong>Playwright / Puppeteer</strong></p>
+        <p>对前端,让 AI 真去点页面、截图、看控制台错误。<br>
+        不是"编译过了 = 对的"。</p>
+      </div>
+    </div>
+    <div class="slide-num">08 · 30</div>
+  </section>
+
+  <!-- 9. Computational vs Inferential -->
+  <section class="slide">
+    <div class="eyebrow">反馈分两种</div>
+    <h2>确定的 vs. 猜的</h2>
+    <div class="vs">
+      <div class="good">
+        <div class="tag">Computational · 计算式</div>
+        <h3 class="green">✓ 确定的检查</h3>
+        <p><strong>速度:</strong>毫秒 ~ 秒级</p>
+        <p><strong>稳定性:</strong>同样输入 = 同样结果</p>
+        <p><strong>例子:</strong>单元测试、类型检查、Lint、AST 分析、代码覆盖率。</p>
+        <p style="margin-top: 0.8rem;">👉 <strong>能用这种,优先用这种。</strong></p>
+      </div>
+      <div class="bad">
+        <div class="tag">Inferential · 推理式</div>
+        <h3 class="warm">~ 猜的检查</h3>
+        <p><strong>速度:</strong>几秒 ~ 几分钟</p>
+        <p><strong>稳定性:</strong>同样输入可能给出不同结果</p>
+        <p><strong>例子:</strong>让另一个 AI 评审"这代码是否过度设计了"、"命名好不好"。</p>
+        <p style="margin-top: 0.8rem;">⚠️ <strong>贵、慢、不一定准 —— 用在必要的地方。</strong></p>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>初学者口诀:</strong>能用确定方法的,绝不让 AI 来猜。写一个单元测试,比让另一个 AI 来看 10 遍,都更可靠。
+    </div>
+    <div class="slide-num">09 · 30</div>
+  </section>
+
+  <!-- 10. Three regulation categories -->
+  <section class="slide">
+    <div class="eyebrow">缰绳要管的三件事</div>
+    <h2>管什么?</h2>
+    <div class="grid-3">
+      <div class="card">
+        <div class="label">维度 ①</div>
+        <h3>可维护性</h3>
+        <p><strong>内部代码质量。</strong></p>
+        <p>有没有重复?函数是不是太长?测试够不够?命名清不清楚?</p>
+        <p style="margin-top: 0.6rem; color: var(--green);"><strong>✓ 可以自动化,成熟工具多。</strong></p>
+      </div>
+      <div class="card">
+        <div class="label">维度 ②</div>
+        <h3>架构契合度</h3>
+        <p><strong>符不符合系统设计。</strong></p>
+        <p>性能指标、模块边界、安全规范、可观测性。</p>
+        <p style="margin-top: 0.6rem; color: var(--warm);"><strong>~ 部分可自动化(Fitness Functions)。</strong></p>
+      </div>
+      <div class="card">
+        <div class="label">维度 ③</div>
+        <h3>行为正确</h3>
+        <p><strong>功能到底对不对。</strong></p>
+        <p>用户登录能登进去吗?付款金额算对了吗?</p>
+        <p style="margin-top: 0.6rem; color: var(--red);"><strong>✕ 最难,目前没有银弹。</strong></p>
+      </div>
+    </div>
+    <p class="lede" style="margin-top: 1.8rem; font-size: 1.05rem;">
+      第三个是最重要也最难的 —— 这是目前 harness engineering 最前沿的研究方向。
+    </p>
+    <div class="slide-num">10 · 30</div>
+  </section>
+
+  <!-- 11. The Steering Loop -->
+  <section class="slide tinted-blue">
+    <div class="eyebrow">人和 AI 怎么协作</div>
+    <h2>掌舵循环 <span class="accent">The Steering Loop</span></h2>
+    <p class="lede">人不写每一行代码,而是<strong>持续调整缰绳本身</strong>。</p>
+    <div class="diagram" style="margin-top: 2.5rem;">
+      <div class="node">① 观察<br>AI 输出</div>
+      <div class="arrow">→</div>
+      <div class="node">② 发现<br>重复模式</div>
+      <div class="arrow">→</div>
+      <div class="node accent">③ 改进<br>Guide / Sensor</div>
+      <div class="arrow">→</div>
+      <div class="node primary">④ 下一轮<br>更准</div>
+    </div>
+    <div class="callout" style="margin-top: 2rem;">
+      <strong>关键心态:</strong><br>
+      ❌ 不要一遍遍手改 AI 的错。<br>
+      ✓ 把"你怎么发现它错了"这件事,<strong>编码进缰绳</strong>,让 AI 下次自己发现。
+    </div>
+    <div class="slide-num">11 · 30</div>
+  </section>
+
+  <!-- 12. Keep quality left -->
+  <section class="slide">
+    <div class="eyebrow">什么时候检查?</div>
+    <h2>越早越便宜</h2>
+    <p class="lede">同样一个 bug,发现得越晚,修复代价越大。</p>
+    <div class="timeline">
+      <div class="step">
+        <div class="num">1</div>
+        <h4>AI 写代码时</h4>
+        <p>类型检查、Lint<br>(毫秒)</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <h4>提交前</h4>
+        <p>跑相关单元测试<br>(秒)</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <h4>合并前 CI</h4>
+        <p>全量测试 + 集成<br>(分钟)</p>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <h4>上线后</h4>
+        <p>生产监控告警<br>(持续)</p>
+      </div>
+    </div>
+    <div class="callout">
+      💡 <strong>Keep quality left · 向左看齐:</strong> 快的检查前置,慢的检查后置。让 AI 在最便宜的阶段自己修掉大部分问题。
+    </div>
+    <div class="slide-num">12 · 30</div>
+  </section>
+
+  <!-- 13. Harnessability -->
+  <section class="slide tinted-green">
+    <div class="eyebrow">一个冷知识</div>
+    <h2>不是所有项目<br>都"能装缰绳"</h2>
+    <p class="lede">Martin Fowler 称之为 <strong>Harnessability</strong> · 可缰绳化程度。</p>
+    <div class="grid-2">
+      <div class="card">
+        <div class="label">容易装缰绳</div>
+        <h3 class="green">Greenfield · 新项目</h3>
+        <ul class="bullets dense" style="margin-top: 0.5rem;">
+          <li>强类型语言(TS / Rust / Go)</li>
+          <li>模块边界清晰</li>
+          <li>测试覆盖率高</li>
+          <li>用主流框架</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="label">难装缰绳</div>
+        <h3 class="red">Legacy · 遗留系统</h3>
+        <ul class="bullets dense" style="margin-top: 0.5rem;">
+          <li>弱类型、动态语言</li>
+          <li>耦合严重,改一处炸一片</li>
+          <li>没测试,或测试跑不起来</li>
+          <li>自研框架,AI 没见过</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout">
+      ⚠️ <strong>悖论:</strong> 最需要 AI 帮忙的遗留系统,恰恰最难装缰绳。所以"先花时间补测试、补类型",往往是让 AI 好用的<strong>前置投资</strong>。
+    </div>
+    <div class="slide-num">13 · 30</div>
+  </section>
+
+  <!-- 14. Quote 1 -->
+  <section class="slide dark">
+    <div class="eyebrow">Fowler 的一句关键话</div>
+    <p class="quote">
+      "Harness 不是替代人类判断,<br>而是把人类判断<br><span class="gradient-text">引导到最关键的地方。</span>"
+      <span class="attr">— Martin Fowler · Harness Engineering</span>
+    </p>
+    <div class="slide-num">14 · 30</div>
+  </section>
+
+  <!-- 15. Transition to Anthropic -->
+  <section class="slide dark">
+    <div class="eyebrow">Part II</div>
+    <h1>工程师<br>怎么 <span class="gradient-text">实际在做?</span></h1>
+    <p class="lede" style="margin-top: 1.8rem; color: #a1a1a6;">
+      来看 Anthropic 工程师的真实案例 ——<br>
+      他们怎么让 AI 连续干活 6 个小时不崩。
+    </p>
+    <div class="slide-num">15 · 30</div>
+  </section>
+
+  <!-- 16. Long-running problems -->
+  <section class="slide">
+    <div class="eyebrow">当任务要跑几小时</div>
+    <h2>两个经典"老毛病"</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="label">问题 ① · 上下文焦虑</div>
+        <h3>Context Anxiety</h3>
+        <p>AI 的"工作记忆"有上限。<strong>快满的时候,它会开始草草收尾</strong>—— 明明任务没做完,它会说"做完了,建议后续优化……"</p>
+        <p class="small" style="margin-top: 0.6rem;">就像人快下班时,会把剩下的活随便糊弄一下。</p>
+      </div>
+      <div class="card">
+        <div class="label">问题 ② · 自我表扬</div>
+        <h3>Sycophancy</h3>
+        <p>AI 倾向于<strong>说自己做得很好</strong>,不管实际如何。让它自己审自己的代码,它会说"优秀 9/10"。</p>
+        <p class="small" style="margin-top: 0.6rem;">就像让学生自己判自己的卷子。</p>
+      </div>
+    </div>
+    <div class="slide-num">16 · 30</div>
+  </section>
+
+  <!-- 17. Context reset -->
+  <section class="slide tinted-blue">
+    <div class="eyebrow">对付"上下文焦虑"</div>
+    <h2>上下文 <span class="accent">重置</span>,不是压缩</h2>
+    <div class="vs">
+      <div class="bad">
+        <div class="tag">压缩 · compaction</div>
+        <h3 class="red">❌ 让 AI 自己总结历史</h3>
+        <p>AI 把前面聊的内容压成摘要,继续干。听起来合理,但 ——</p>
+        <p>摘要会漏掉关键信息,越干越偏,<strong>错误在悄悄累积</strong>。</p>
+      </div>
+      <div class="good">
+        <div class="tag">重置 · reset</div>
+        <h3 class="green">✓ 结构化交接后开新会话</h3>
+        <p>写下明确的"已完成 / 下一步 / 重要决定",<strong>扔掉旧会话</strong>,新 AI 从这份交接文档开始。</p>
+        <p>像接力赛,每棒都是满血状态。</p>
+      </div>
+    </div>
+    <div class="callout">
+      💡 <strong>给初学者:</strong> 你在用 Claude Code / Cursor 聊久了感觉"它变笨了"—— 开个新会话,把关键决定贴进去,通常立刻变聪明。
+    </div>
+    <div class="slide-num">17 · 30</div>
+  </section>
+
+  <!-- 18. Generator-Evaluator -->
+  <section class="slide tinted-warm">
+    <div class="eyebrow">对付"自我表扬"</div>
+    <h2>把 AI <span class="accent">分成两个角色</span></h2>
+    <div class="diagram" style="margin-top: 2rem;">
+      <div class="node primary" style="padding: 1.3rem 1.8rem;">
+        Generator<br>
+        <span style="font-weight: 400; font-size: 0.8rem; opacity: 0.7;">生成器 · 负责写</span>
+      </div>
+      <div class="arrow">⇄</div>
+      <div class="node accent" style="padding: 1.3rem 1.8rem;">
+        Evaluator<br>
+        <span style="font-weight: 400; font-size: 0.8rem;">评审员 · 负责挑刺</span>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top: 2rem;">
+      <div class="card">
+        <div class="label">为什么有效</div>
+        <p>两个 AI 拿不同的 prompt、不同的身份启动,互不串通。评审员被专门调教得"很挑剔",不会轻易说 OK。</p>
+      </div>
+      <div class="card">
+        <div class="label">灵感来源</div>
+        <p>GAN(生成对抗网络):一个画家,一个鉴赏家。画家努力骗过鉴赏家,鉴赏家努力挑刺。双方越来越强。</p>
+      </div>
+    </div>
+    <div class="slide-num">18 · 30</div>
+  </section>
+
+  <!-- 19. 4 grading criteria -->
+  <section class="slide">
+    <div class="eyebrow">评审员审什么?</div>
+    <h2>4 条评分标准<br><span style="color: var(--ink-soft); font-weight: 500; font-size: 0.6em;">以"前端设计"任务为例</span></h2>
+    <div class="grid-4">
+      <div class="card tight">
+        <div class="label">① Design</div>
+        <h4>设计品质</h4>
+        <p>视觉有没有统一风格?像不像一个团队做的?</p>
+      </div>
+      <div class="card tight">
+        <div class="label">② Originality</div>
+        <h4>原创性</h4>
+        <p>是不是又出现了那种"一眼 AI 味"的模板?</p>
+      </div>
+      <div class="card tight">
+        <div class="label">③ Craft</div>
+        <h4>工艺水平</h4>
+        <p>对齐、间距、响应式,这些技术基本功扎实吗?</p>
+      </div>
+      <div class="card tight">
+        <div class="label">④ Functionality</div>
+        <h4>能不能用</h4>
+        <p>按钮真的能点吗?流程真的跑得通吗?</p>
+      </div>
+    </div>
+    <p class="lede" style="margin-top: 1.8rem; font-size: 1rem;">
+      评审员用 Playwright <strong>真的去操作页面</strong>,不是看着代码猜。迭代 5 ~ 15 轮,有时会出现"创造性飞跃"—— 换一整套设计方向。
+    </p>
+    <div class="slide-num">19 · 30</div>
+  </section>
+
+  <!-- 20. Three-agent architecture -->
+  <section class="slide tinted-blue">
+    <div class="eyebrow">更复杂的任务:做整个 App</div>
+    <h2>三个 Agent 接力</h2>
+    <div class="timeline">
+      <div class="step">
+        <div class="num">1</div>
+        <h4>Planner · 规划师</h4>
+        <p>把"做个音乐制作工具"这种一句话需求,展开成详细规格:有哪些功能、数据模型、界面流程。</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <h4>Generator · 生成器</h4>
+        <p>按规格逐个 sprint 实现,边写边自查。每次只关注一小块。</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <h4>Evaluator · 评审员</h4>
+        <p>用 Playwright 真去测功能,写测试报告:"登录通了,支付时金额错了"。</p>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>关键机制 · Sprint Contract:</strong> Generator 和 Evaluator 在开干前,先一起把"什么叫做完了"写清楚。避免最后一方说"我做完了",另一方说"不算"。
+    </div>
+    <div class="slide-num">20 · 30</div>
+  </section>
+
+  <!-- 21. Comparison -->
+  <section class="slide dark">
+    <div class="eyebrow">差距有多大</div>
+    <h2>同一道题:做个复古小游戏</h2>
+    <table class="compare-table">
+      <thead>
+        <tr><th>维度</th><th>单一 Agent</th><th>完整 Harness</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>耗时</td><td>20 分钟</td><td>6 小时</td></tr>
+        <tr><td>成本</td><td>$9</td><td>$200</td></tr>
+        <tr><td>核心玩法</td><td style="color:#ff453a;">✕ 坏的</td><td style="color:#34c759;">✓ 能玩</td></tr>
+        <tr><td>界面打磨</td><td style="color:#ff453a;">✕ 粗糙</td><td style="color:#34c759;">✓ 精致</td></tr>
+        <tr><td>AI 功能集成</td><td style="color:#ff453a;">✕ 没接好</td><td style="color:#34c759;">✓ 已集成</td></tr>
+        <tr><td>用户能直接用吗</td><td style="color:#ff453a;">✕ 不能</td><td style="color:#34c759;">✓ 能</td></tr>
+      </tbody>
+    </table>
+    <p class="lede" style="margin-top: 1.8rem; font-size: 1.05rem; color: #a1a1a6;">
+      花多 22 倍的钱,不是浪费 —— 是把"能跑的 demo"变成"真能用的产品"。
+    </p>
+    <div class="slide-num">21 · 30</div>
+  </section>
+
+  <!-- 22. Evolution -->
+  <section class="slide">
+    <div class="eyebrow">有趣的反转</div>
+    <h2>模型变强后,<br>缰绳要<span class="accent">变松</span></h2>
+    <p class="lede">
+      Opus 4.6 / 4.7 出来后,Anthropic 的工程师<strong>主动拆掉了</strong>一些脚手架:
+    </p>
+    <ul class="bullets">
+      <li>以前要切成多个小 sprint → 现在一次性做 2 小时没问题。</li>
+      <li>以前 Evaluator 要反复挑刺 → 现在"一次过审"就够了。</li>
+      <li>以前要三个 agent → 现在很多任务一个就搞定。</li>
+    </ul>
+    <div class="callout">
+      💡 <strong>原则:</strong> 用 <strong>最简单能跑通的 harness</strong>。Harness 是脚手架,不是建筑。模型变强,就该拆。
+    </div>
+    <p class="lede" style="margin-top: 1.5rem; font-size: 1rem;">
+      不要为未来可能的问题过度设计 —— 那是工程师的通病,在 AI 时代代价更大。
+    </p>
+    <div class="slide-num">22 · 30</div>
+  </section>
+
+  <!-- 23. Ashby's Law -->
+  <section class="slide tinted-warm">
+    <div class="eyebrow">一个深层原理</div>
+    <h2>Ashby's Law<br><span style="color: var(--ink-soft); font-weight: 500;">必要变量定律</span></h2>
+    <p class="lede">
+      控制论里的一句老话:<br>
+      <strong>"控制器的复杂度必须能匹配被控系统的复杂度。"</strong>
+    </p>
+    <div class="split" style="margin-top: 1.5rem;">
+      <div>
+        <h3>翻译成人话</h3>
+        <p class="small" style="font-size: 1.05rem;">
+          AI 能写出的花样越多,你的缰绳就要越复杂,才能管住。
+        </p>
+      </div>
+      <div>
+        <h3 style="color: var(--accent);">聪明的反向操作</h3>
+        <p class="small" style="font-size: 1.05rem;">
+          <strong>先主动减少花样 —— </strong> 规定好"就用这三种架构模板之一",AI 的输出空间变小,缰绳就容易做。
+        </p>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>初学者类比:</strong> 你教小孩画画,给他一盒 8 色蜡笔比给他 120 色更好教 —— 不是因为他能力差,而是<strong>选择少了,你好管、他好学</strong>。
+    </div>
+    <div class="slide-num">23 · 30</div>
+  </section>
+
+  <!-- 24. Harness templates -->
+  <section class="slide">
+    <div class="eyebrow">企业可能的下一步</div>
+    <h2>Harness 模板化</h2>
+    <p class="lede">
+      不同类型的服务,缰绳长得不一样。未来可能会出现 <strong>预配置的 harness 包</strong>:
+    </p>
+    <div class="grid-3">
+      <div class="card tight">
+        <div class="label">模板 A</div>
+        <h4>CRUD 业务服务</h4>
+        <p>一套固定的:数据模型 / API 约定 / 测试模板 / 性能阈值。</p>
+      </div>
+      <div class="card tight">
+        <div class="label">模板 B</div>
+        <h4>事件处理器</h4>
+        <p>重点在幂等性、消息格式校验、重试机制的 harness。</p>
+      </div>
+      <div class="card tight">
+        <div class="label">模板 C</div>
+        <h4>数据看板</h4>
+        <p>重点在查询性能、图表规范、数据新鲜度检查。</p>
+      </div>
+    </div>
+    <p class="lede" style="margin-top: 1.8rem; font-size: 1rem;">
+      未来团队选技术栈,可能<strong>会优先考虑"这个技术有没有现成 harness 模板"</strong>—— 而不只是"这个技术本身好不好"。
+    </p>
+    <div class="slide-num">24 · 30</div>
+  </section>
+
+  <!-- 25. Open questions -->
+  <section class="slide tinted-blue">
+    <div class="eyebrow">诚实地说</div>
+    <h2>还没解决的难题</h2>
+    <ul class="bullets">
+      <li>缰绳越装越多,<strong>彼此会不会打架</strong>?怎么保证一致?</li>
+      <li>怎么<strong>衡量</strong>一个 harness 好不好?覆盖度怎么算?</li>
+      <li>反馈太多,AI 会被噪音淹没 —— 怎么<strong>过滤</strong>?</li>
+      <li>最大的:怎么真正<strong>验证"行为正确"</strong>?测试只能覆盖想得到的场景。</li>
+    </ul>
+    <div class="callout">
+      这些问题目前<strong>没有标准答案</strong>。但这也是机会 —— Harness Engineering 是 2026 年最新、最热的软件工程方向之一。
+    </div>
+    <div class="slide-num">25 · 30</div>
+  </section>
+
+  <!-- 26. Role of humans -->
+  <section class="slide">
+    <div class="eyebrow">你的角色变了</div>
+    <h2>人还需要做什么?</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="label">AI 做不到的</div>
+        <h3>人类的"隐性 Harness"</h3>
+        <p><strong>判断力:</strong>这个需求的背后,客户真正想要的是什么?</p>
+        <p><strong>上下文:</strong>老板上周才说的政策变化、团队刚踩的坑、法务的边界。</p>
+        <p><strong>品味:</strong>这个 UI 是不是"有灵魂"—— AI 还不太擅长。</p>
+      </div>
+      <div class="card">
+        <div class="label">你的新工作</div>
+        <h3>Harness 设计师</h3>
+        <p>把<strong>你的判断</strong>变成规则、模板、检查器。</p>
+        <p>把<strong>踩过的坑</strong>写进 CLAUDE.md。</p>
+        <p>把<strong>团队的品味</strong>固化成示例代码。</p>
+        <p style="color: var(--ink); font-weight: 600; margin-top: 0.6rem;">你不是被 AI 替代,你是它的驯兽师。</p>
+      </div>
+    </div>
+    <div class="slide-num">26 · 30</div>
+  </section>
+
+  <!-- 27. Beginner checklist -->
+  <section class="slide tinted-green">
+    <div class="eyebrow">今天就能做的 5 件事</div>
+    <h2>新手起步清单</h2>
+    <ul class="checklist">
+      <li>在项目根目录写一个 <strong>CLAUDE.md / AGENTS.md</strong>,放项目约定。AI 会自动读。</li>
+      <li>把 <strong>自动测试</strong> 跑起来 —— 哪怕只有一个。AI 写完代码后让它<strong>自己跑</strong>。</li>
+      <li>打开 <strong>类型检查</strong>(TS / Pyright / mypy)。这是最便宜的缰绳。</li>
+      <li>碰到 AI 重复犯同一个错,<strong>不要手动改第二次</strong> —— 回去改 Guide。</li>
+      <li>长任务做到一半感觉 AI "变笨"了:<strong>开新会话</strong>,把关键决定贴过去。</li>
+    </ul>
+    <div class="slide-num">27 · 30</div>
+  </section>
+
+  <!-- 28. Anti-patterns -->
+  <section class="slide">
+    <div class="eyebrow">新手常踩的坑</div>
+    <h2>这些做法 <span class="red">别做</span></h2>
+    <ul class="checklist">
+      <li class="x"><strong>让 AI 自己审自己的代码。</strong>它会说"完美,9/10"—— 没用。</li>
+      <li class="x"><strong>一个会话一直聊到天荒地老。</strong>上下文爆了,它只会糊弄。</li>
+      <li class="x"><strong>为每一个可能的未来需求写规则。</strong>Harness 不是越多越好,越臃肿越难维护。</li>
+      <li class="x"><strong>认为 AI 写出来能编译就是对的。</strong>编译过 ≠ 逻辑对 ≠ 用户能用。</li>
+      <li class="x"><strong>遇到不确定就问 AI。</strong>它的回答看起来很自信,但可能是编的。关键决定留给人。</li>
+    </ul>
+    <div class="slide-num">28 · 30</div>
+  </section>
+
+  <!-- 29. Final quote -->
+  <section class="slide dark">
+    <div class="eyebrow">记住这句</div>
+    <p class="quote" style="max-width: 30ch;">
+      "找到<br>能跑通的<br><span class="gradient-text">最简单的 harness。</span>"
+      <span class="attr">— Prithvi Rajasekaran · Anthropic</span>
+    </p>
+    <p class="lede" style="margin-top: 2rem; color: #a1a1a6; font-size: 1rem;">
+      不是越复杂越好。够用就好。模型变强,就把脚手架拆掉。
+    </p>
+    <div class="slide-num">29 · 30</div>
+  </section>
+
+  <!-- 30. Closing -->
+  <section class="slide dark">
+    <div class="eyebrow">总结</div>
+    <h1 style="font-size: clamp(2rem, 4.5vw, 4.5rem);">
+      你的工作<br>
+      不再是<span style="color: #6e6e73;">写代码</span>,<br>
+      是<span class="gradient-text">设计这套缰绳。</span>
+    </h1>
+    <p class="lede" style="margin-top: 1.8rem; color: #a1a1a6; font-size: 1.1rem;">
+      Harness Engineering 是 2026 年软件工程最值得学的方向之一。<br>
+      从今天开始,给你的 AI 装上第一根缰绳吧。
+    </p>
+    <p class="footer-note" style="color:#6e6e73;">
+      ← / → 切换页面 · 空格翻页 · Home / End 首尾 · Esc 退出全屏<br>
+      Sources: Martin Fowler — Harness Engineering · Anthropic — Harness Design for Long-Running Apps
+    </p>
+    <div class="slide-num">30 · 30</div>
+  </section>
+
+</div>
+
+<div class="nav">
+  <button id="prev" aria-label="上一页">‹</button>
+  <span id="counter">1 / 30</span>
+  <button id="next" aria-label="下一页">›</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let idx = 0;
+  const counter = document.getElementById('counter');
+  const progress = document.getElementById('progress');
+
+  function show(i) {
+    idx = (i + total) % total;
+    slides.forEach((s, n) => s.classList.toggle('active', n === idx));
+    counter.textContent = `${idx + 1} / ${total}`;
+    progress.style.width = `${((idx + 1) / total) * 100}%`;
+    // scroll active slide to top
+    const active = slides[idx];
+    if (active) active.scrollTop = 0;
+  }
+
+  document.getElementById('prev').onclick = () => show(idx - 1);
+  document.getElementById('next').onclick = () => show(idx + 1);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); show(idx + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); show(idx - 1); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End') show(total - 1);
+  });
+
+  // Touch / swipe
+  let touchX = 0;
+  document.addEventListener('touchstart', (e) => touchX = e.touches[0].clientX);
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) show(idx + (dx < 0 ? 1 : -1));
+  });
+
+  show(0);
+</script>
+</body>
+</html>
