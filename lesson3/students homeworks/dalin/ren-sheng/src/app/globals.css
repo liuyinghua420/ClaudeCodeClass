@@ -1,0 +1,175 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* 浅色模式 */
+  --bg-base: 250 250 247;        /* #FAFAF7 */
+  --bg-card: 255 255 255;
+  --bg-subtle: 244 244 240;
+  --text-primary: 26 26 26;
+  --text-secondary: 75 85 99;
+  --text-muted: 156 163 175;
+  --accent: 194 65 12;            /* #C2410C 赭石 */
+  --accent-hover: 154 52 18;
+  --data-1: 15 118 110;           /* 深青 */
+  --data-2: 124 58 237;           /* 紫 */
+  --data-3: 217 119 6;            /* 琥珀 */
+  --warn: 220 38 38;
+  --border: 229 229 224;
+
+  --font-sans: -apple-system, "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+  --font-serif: "Noto Serif SC", "Songti SC", "STSong", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+
+[data-theme="dark"] {
+  --bg-base: 15 17 21;            /* #0F1115 */
+  --bg-card: 26 31 43;            /* #1A1F2B */
+  --bg-subtle: 22 25 33;
+  --text-primary: 232 232 232;
+  --text-secondary: 156 163 175;
+  --text-muted: 107 114 128;
+  --accent: 251 146 60;            /* #FB923C 暖橙 */
+  --accent-hover: 253 186 116;
+  --data-1: 45 212 191;
+  --data-2: 167 139 250;
+  --data-3: 251 191 36;
+  --warn: 239 68 68;
+  --border: 38 43 56;
+}
+
+* {
+  border-color: rgb(var(--border));
+}
+
+html {
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: rgb(var(--bg-base));
+  color: rgb(var(--text-primary));
+  font-family: var(--font-sans);
+  transition: background-color 300ms ease, color 300ms ease;
+}
+
+/* 排版层级 (spec.md §8.4) */
+.text-display {
+  font-family: var(--font-serif);
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.text-h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.875rem, 3.5vw, 2.75rem);
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.text-h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+.text-h3 {
+  font-size: 1.375rem;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.text-body {
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+
+.text-quote {
+  font-family: var(--font-serif);
+  font-size: 1.625rem;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.text-meta {
+  font-size: 0.875rem;
+  color: rgb(var(--text-muted));
+}
+
+/* 散文区域 */
+.prose-content {
+  max-width: 68ch;
+}
+.prose-content p {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  margin-bottom: 1.25em;
+  color: rgb(var(--text-primary));
+}
+.prose-content p + p {
+  margin-top: 0;
+}
+.prose-content strong {
+  color: rgb(var(--accent));
+  font-weight: 600;
+}
+.prose-content em {
+  font-style: italic;
+}
+.prose-content ul, .prose-content ol {
+  margin: 1em 0 1.5em 1.5em;
+}
+.prose-content li {
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  margin-bottom: 0.5em;
+}
+.prose-content blockquote {
+  border-left: 3px solid rgb(var(--accent));
+  padding-left: 1.25rem;
+  margin: 2em 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: rgb(var(--text-secondary));
+}
+
+/* 反向支持 prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 焦点样式 */
+*:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: rgb(var(--bg-subtle));
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--border));
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--text-muted));
+}

@@ -1,0 +1,2980 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>人生算法 — 不是答案,是一种思考方式</title>
+<meta name="description" content="一个让普通人从'听过人生算法'升级到'会用人生算法'的交互式学习网页。" />
+<style>
+:root {
+  --bg-base: #FAFAF7;
+  --bg-card: #FFFFFF;
+  --bg-subtle: #F4F4F0;
+  --text-primary: #1A1A1A;
+  --text-secondary: #4B5563;
+  --text-muted: #9CA3AF;
+  --accent: #C2410C;
+  --accent-hover: #9A3412;
+  --data-1: #0F766E;
+  --data-2: #7C3AED;
+  --data-3: #D97706;
+  --warn: #DC2626;
+  --border: #E5E5E0;
+  --font-sans: -apple-system, "PingFang SC", "Noto Sans SC", system-ui, "Microsoft YaHei", sans-serif;
+  --font-serif: "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+[data-theme="dark"] {
+  --bg-base: #0F1115;
+  --bg-card: #1A1F2B;
+  --bg-subtle: #161921;
+  --text-primary: #E8E8E8;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
+  --accent: #FB923C;
+  --accent-hover: #FDBA74;
+  --data-1: #2DD4BF;
+  --data-2: #A78BFA;
+  --data-3: #FBBF24;
+  --warn: #EF4444;
+  --border: #262B38;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  transition: background-color 300ms ease, color 300ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+/* 排版 */
+h1, h2, h3, h4 { font-family: var(--font-serif); font-weight: 700; line-height: 1.2; color: var(--text-primary); }
+.t-display { font-size: clamp(2.25rem, 5vw, 3.5rem); letter-spacing: -0.02em; }
+.t-h1 { font-size: clamp(1.875rem, 3.5vw, 2.5rem); }
+.t-h2 { font-size: clamp(1.5rem, 2.5vw, 1.875rem); }
+.t-h3 { font-size: 1.25rem; line-height: 1.4; }
+.t-quote { font-family: var(--font-serif); font-size: 1.5rem; font-style: italic; line-height: 1.5; }
+.t-meta { font-size: 0.8125rem; color: var(--text-muted); }
+.t-body { font-size: 1.0625rem; line-height: 1.8; color: var(--text-primary); }
+.text-accent { color: var(--accent); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+
+/* 布局 */
+.container { max-width: 72rem; margin: 0 auto; padding: 0 1rem; }
+@media (min-width: 768px) { .container { padding: 0 2rem; } }
+
+/* Header */
+.site-header {
+  position: sticky; top: 0; z-index: 50;
+  background: color-mix(in srgb, var(--bg-base) 80%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px; max-width: 72rem; margin: 0 auto; padding: 0 1rem;
+  gap: 1rem;
+}
+@media (min-width: 768px) { .header-inner { padding: 0 2rem; } }
+.brand {
+  font-family: var(--font-serif); font-size: 1.125rem; font-weight: 600;
+  color: var(--text-primary); text-decoration: none; flex-shrink: 0;
+  cursor: pointer;
+}
+.brand:hover { color: var(--accent); }
+.nav-main { display: none; align-items: center; gap: 2px; flex: 1; justify-content: center; }
+@media (min-width: 1024px) { .nav-main { display: flex; } }
+.nav-link {
+  padding: 6px 10px; font-size: 0.875rem;
+  color: var(--text-secondary); border-radius: 6px;
+  cursor: pointer; transition: all 200ms; border: none; background: transparent;
+  font-family: inherit;
+}
+.nav-link:hover { color: var(--accent); background: var(--bg-subtle); }
+.nav-link.active { color: var(--accent); background: var(--bg-subtle); }
+.nav-right { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 8px; border: none;
+  background: transparent; color: var(--text-secondary);
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 200ms;
+}
+.icon-btn:hover { color: var(--accent); background: var(--bg-subtle); }
+.icon-btn svg { width: 20px; height: 20px; }
+.menu-mobile {
+  display: none; padding: 12px 16px; border-top: 1px solid var(--border);
+  flex-direction: column; gap: 2px;
+}
+.menu-mobile.open { display: flex; }
+.menu-mobile .nav-link { padding: 10px 12px; font-size: 0.95rem; text-align: left; }
+@media (min-width: 1024px) { .menu-mobile, .icon-btn.menu-toggle { display: none !important; } }
+.progress-bar { height: 2px; background: var(--bg-subtle); position: relative; overflow: hidden; }
+.progress-bar > div { height: 100%; background: var(--accent); transition: width 500ms; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  height: 44px; padding: 0 1.25rem; border-radius: 8px;
+  font-size: 0.95rem; font-weight: 500; font-family: inherit;
+  border: 1px solid transparent; cursor: pointer; transition: all 200ms;
+  text-decoration: none;
+}
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-secondary { background: var(--bg-card); color: var(--text-primary); border-color: var(--border); }
+.btn-secondary:hover { border-color: var(--accent); }
+.btn-ghost { background: transparent; color: var(--text-primary); }
+.btn-ghost:hover { background: var(--bg-subtle); }
+.btn-lg { height: 48px; padding: 0 1.5rem; }
+.btn-sm { height: 36px; padding: 0 0.75rem; font-size: 0.875rem; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Cards */
+.card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.5rem; transition: all 200ms;
+}
+.card-hover { cursor: pointer; }
+.card-hover:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgb(0 0 0 / 0.06); }
+.callout { border-left: 4px solid; padding: 1rem; border-radius: 0 8px 8px 0; margin: 1.5rem 0; }
+.callout-info { border-color: var(--data-1); background: color-mix(in srgb, var(--data-1) 8%, transparent); }
+.callout-warn { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 8%, transparent); }
+.callout-insight { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.callout-label {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-secondary); font-weight: 600; margin-bottom: 0.25rem;
+}
+
+/* Sections / pages */
+.page { display: none; }
+.page.active { display: block; }
+.section { margin-bottom: 4rem; }
+.section h2 { margin-bottom: 0.5rem; }
+.section .section-sub { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem; }
+.lede { font-family: var(--font-serif); font-size: clamp(1.25rem, 2vw, 1.5rem); line-height: 1.5; max-width: 48rem; margin-bottom: 1.5rem; color: var(--text-primary); }
+.prose p { font-size: 1.0625rem; line-height: 1.8; margin-bottom: 1.25rem; max-width: 48rem; }
+.prose ul, .prose ol { margin: 1rem 0 1.5rem 1.5rem; max-width: 48rem; }
+.prose li { font-size: 1.0625rem; line-height: 1.8; margin-bottom: 0.5rem; }
+.prose strong { color: var(--accent); font-weight: 600; }
+.prose em { font-style: italic; }
+.prose blockquote { border-left: 3px solid var(--accent); padding-left: 1.25rem; margin: 1.5rem 0; font-family: var(--font-serif); font-style: italic; color: var(--text-secondary); }
+
+/* Hero */
+.hero { padding: 4rem 0 3rem; }
+@media (min-width: 768px) { .hero { padding: 6rem 0 4rem; } }
+.hero-eyebrow { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--accent); font-weight: 500; margin-bottom: 1rem; }
+.hero h1 .gray { color: var(--text-secondary); font-weight: 400; }
+.hero p { color: var(--text-secondary); font-size: 1.125rem; line-height: 1.7; max-width: 40rem; margin: 1.5rem 0 2rem; }
+.hero-cta { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+/* Value props */
+.values { display: grid; gap: 2rem; padding: 3rem 0; border-top: 1px solid var(--border); }
+@media (min-width: 768px) { .values { grid-template-columns: repeat(3, 1fr); } }
+.value-item h3 { color: var(--text-primary); margin: 0.75rem 0 0.5rem; }
+.value-item .icon { width: 28px; height: 28px; color: var(--accent); }
+.value-item p { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.7; }
+
+/* Module grid */
+.module-grid { display: grid; gap: 1rem; }
+@media (min-width: 640px) { .module-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .module-grid { grid-template-columns: repeat(4, 1fr); } }
+.module-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.25rem; cursor: pointer;
+  transition: all 200ms; display: flex; flex-direction: column; gap: 0.75rem;
+  text-align: left; font-family: inherit;
+}
+.module-card:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgb(0 0 0 / 0.06); }
+.module-card-head { display: flex; justify-content: space-between; align-items: center; }
+.module-card-num { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); }
+.module-card-icon { font-size: 1.25rem; color: var(--accent); margin-left: 0.5rem; }
+.module-card-check { color: var(--data-1); }
+.module-card h3 { font-size: 1.125rem; margin-bottom: 0.25rem; }
+.module-card .hook { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; flex: 1; }
+.module-card .question { font-size: 0.75rem; font-style: italic; color: var(--text-muted); line-height: 1.6; }
+.module-card-foot { display: flex; justify-content: space-between; padding-top: 0.75rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-muted); }
+.tag-level { padding: 1px 6px; background: var(--bg-subtle); border-radius: 4px; color: var(--text-secondary); }
+
+/* Path by question */
+.path-grid { display: grid; gap: 0.75rem; }
+@media (min-width: 768px) { .path-grid { grid-template-columns: repeat(2, 1fr); } }
+.path-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 1.25rem; border: 1px solid var(--border); border-radius: 12px;
+  background: var(--bg-card); cursor: pointer; transition: all 200ms;
+  text-align: left; font-family: inherit;
+}
+.path-item:hover { border-color: var(--accent); }
+.path-item .arrow { color: var(--text-muted); transition: all 200ms; }
+.path-item:hover .arrow { color: var(--accent); transform: translateX(4px); }
+
+/* Trust anchor */
+.trust-box {
+  border: 1px solid var(--border); background: var(--bg-card);
+  border-radius: 16px; padding: 2rem;
+}
+@media (min-width: 768px) { .trust-box { padding: 3rem; } }
+.trust-quote {
+  font-family: var(--font-serif); font-size: 1.5rem; font-style: italic;
+  line-height: 1.5; padding-left: 1.25rem; border-left: 4px solid var(--accent);
+  margin: 1rem 0 0.75rem; max-width: 36rem;
+}
+
+/* Module page */
+.module-header { padding: 3rem 0 2rem; border-bottom: 1px solid var(--border); }
+.crumbs { display: flex; align-items: center; gap: 0.75rem; font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 1rem; }
+.crumbs a { color: var(--text-muted); text-decoration: none; cursor: pointer; }
+.crumbs a:hover { color: var(--accent); }
+.crumbs .sep { color: var(--text-muted); }
+.module-header h1 { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
+.module-header h1 .en { font-family: var(--font-mono); font-size: 1.25rem; color: var(--text-muted); font-weight: 400; }
+.module-header .hook { font-size: 1.0625rem; color: var(--text-secondary); margin-top: 0.5rem; max-width: 48rem; line-height: 1.7; }
+.module-content { padding: 3rem 0; }
+
+/* Compare card */
+.compare {
+  border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+  margin: 1.5rem 0;
+}
+.compare-row {
+  display: grid; grid-template-columns: 1.2fr 1fr 1fr;
+  font-size: 0.95rem;
+}
+.compare-row > div { padding: 12px 16px; border-top: 1px solid var(--border); }
+.compare-row:first-child > div { border-top: none; background: var(--bg-subtle); font-weight: 500; color: var(--text-secondary); font-size: 0.875rem; }
+.compare-row > div:nth-child(2), .compare-row > div:nth-child(3) { border-left: 1px solid var(--border); }
+.compare-row > div:nth-child(3) { color: var(--text-primary); }
+.compare-row:first-child > div:nth-child(3) { color: var(--accent); }
+
+/* Concept card grid */
+.concept-grid { display: grid; gap: 1rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .concept-grid.cols-2 { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 768px) { .concept-grid.cols-3 { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 768px) { .concept-grid.cols-4 { grid-template-columns: repeat(2, 1fr); } }
+.concept-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+.concept-card-head { display: flex; align-items: start; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.5rem; }
+.concept-card h3 { font-size: 1.0625rem; }
+.concept-card .badge { font-size: 0.75rem; padding: 2px 8px; background: var(--bg-subtle); color: var(--text-secondary); border-radius: 4px; flex-shrink: 0; }
+.concept-card p { font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.7; }
+
+/* Quote card */
+.quote-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin: 2rem 0; }
+@media (min-width: 768px) { .quote-card { padding: 2rem; } }
+.quote-card blockquote { font-family: var(--font-serif); font-size: 1.375rem; font-style: italic; line-height: 1.5; color: var(--text-primary); margin-bottom: 1.5rem; }
+.quote-meta { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.875rem; flex-shrink: 0; background: var(--accent); }
+.quote-author { font-weight: 600; color: var(--text-primary); }
+.quote-role { font-size: 0.8125rem; color: var(--text-muted); }
+.quote-source { font-size: 0.8125rem; color: var(--text-muted); margin-left: auto; }
+.quote-guide { font-size: 0.875rem; color: var(--text-secondary); border-top: 1px solid var(--border); padding-top: 1rem; line-height: 1.7; }
+.quote-guide b { color: var(--accent); }
+
+/* Tool link */
+.tool-link {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 1.25rem; margin: 2rem 0; border: 2px dashed color-mix(in srgb, var(--accent) 40%, transparent);
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+  border-radius: 12px; cursor: pointer; transition: all 200ms;
+  text-align: left; font-family: inherit; width: 100%;
+}
+.tool-link:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.tool-link-eyebrow { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); font-weight: 600; margin-bottom: 0.25rem; }
+.tool-link h3 { font-size: 1.25rem; margin-bottom: 0.25rem; }
+.tool-link p { font-size: 0.875rem; color: var(--text-secondary); }
+.tool-link .arrow { color: var(--accent); font-size: 1.5rem; transition: transform 200ms; }
+.tool-link:hover .arrow { transform: translateX(4px); }
+
+/* Reflection */
+.reflection {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 1.5rem; margin: 2rem 0;
+}
+.reflection-head { display: flex; gap: 0.75rem; margin-bottom: 1rem; align-items: start; }
+.reflection-icon { width: 32px; height: 32px; border-radius: 50%; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-serif); flex-shrink: 0; }
+.reflection h4 { font-size: 1.125rem; line-height: 1.4; }
+.reflection textarea {
+  width: 100%; min-height: 100px; padding: 12px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: var(--bg-base); color: var(--text-primary);
+  font-family: inherit; font-size: 0.9375rem; line-height: 1.6; resize: vertical;
+}
+.reflection textarea:focus { outline: none; border-color: var(--accent); }
+.reflection-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-muted); }
+.reflection-saved { color: var(--data-1); font-weight: 500; display: flex; align-items: center; gap: 4px; }
+
+/* Module footer */
+.module-foot-cta {
+  background: var(--bg-subtle); border-radius: 16px; padding: 1.5rem;
+  margin: 3rem 0 2rem;
+}
+@media (min-width: 768px) { .module-foot-cta { padding: 2rem; } }
+.module-foot-cta h3 { margin-bottom: 0.75rem; }
+.module-foot-cta p { color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.7; }
+.module-nav { display: flex; flex-direction: column; gap: 0.75rem; }
+@media (min-width: 640px) { .module-nav { flex-direction: row; } }
+.module-nav-item {
+  flex: 1; display: flex; align-items: center; gap: 1rem;
+  padding: 1.25rem; border: 1px solid var(--border); border-radius: 12px;
+  cursor: pointer; transition: all 200ms; background: transparent;
+  font-family: inherit; text-align: left;
+}
+.module-nav-item:hover { border-color: var(--accent); }
+.module-nav-item.next { justify-content: flex-end; text-align: right; }
+.module-nav-item .small { font-size: 0.75rem; color: var(--text-muted); }
+.module-nav-item .name { font-weight: 500; color: var(--text-primary); }
+.module-nav-item.final { border-color: color-mix(in srgb, var(--accent) 40%, transparent); background: color-mix(in srgb, var(--accent) 5%, transparent); }
+.module-nav-item.final .small { color: var(--accent); }
+
+/* Tools / charts */
+.tool-page { padding: 2rem 0; }
+.tool-eyebrow { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); font-weight: 500; margin-bottom: 0.75rem; }
+.tool-page h1 { margin-bottom: 1rem; }
+.tool-page .desc { font-size: 1.0625rem; color: var(--text-secondary); line-height: 1.7; max-width: 48rem; margin-bottom: 0.5rem; }
+.tool-page .aha { font-size: 0.875rem; color: var(--text-muted); font-style: italic; }
+.tool-grid { display: grid; gap: 2rem; margin-top: 3rem; }
+@media (min-width: 1024px) { .tool-grid.with-aside { grid-template-columns: 320px 1fr; } }
+@media (min-width: 1024px) { .tool-grid.split { grid-template-columns: 1fr 1fr; } }
+.tool-aside { display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* Slider */
+.slider-row { display: flex; flex-direction: column; gap: 0.5rem; }
+.slider-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.75rem; }
+.slider-label { font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); }
+.slider-value { font-family: var(--font-mono); font-size: 1rem; font-weight: 600; color: var(--accent); }
+.slider-input { width: 100%; height: 6px; border-radius: 3px; appearance: none; background: var(--bg-subtle); cursor: pointer; outline: none; }
+.slider-input::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: none; cursor: pointer; box-shadow: 0 1px 4px rgb(0 0 0 / 0.2); }
+.slider-input::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: none; cursor: pointer; }
+.slider-hint { font-size: 0.75rem; color: var(--text-muted); }
+
+/* Inputs / select */
+.input-row { display: flex; flex-direction: column; gap: 0.375rem; }
+.input-row label { font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); }
+.input-row input, .input-row select, .input-row textarea {
+  width: 100%; height: 44px; padding: 0 12px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: var(--bg-card); color: var(--text-primary);
+  font-family: inherit; font-size: 0.9375rem;
+}
+.input-row textarea { height: auto; min-height: 80px; padding: 12px; resize: vertical; line-height: 1.6; }
+.input-row input:focus, .input-row select:focus, .input-row textarea:focus { outline: none; border-color: var(--accent); }
+
+/* Segmented */
+.segmented { display: inline-flex; gap: 4px; padding: 4px; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 8px; flex-wrap: wrap; }
+.segmented button {
+  padding: 6px 14px; border-radius: 6px; border: none;
+  background: transparent; color: var(--text-secondary);
+  font-size: 0.875rem; font-weight: 500; font-family: inherit;
+  cursor: pointer; transition: all 200ms;
+}
+.segmented button.active { background: var(--bg-card); color: var(--accent); box-shadow: 0 1px 2px rgb(0 0 0 / 0.05); }
+
+/* Stats */
+.stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+@media (min-width: 640px) { .stats.cols-3 { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 768px) { .stats.cols-4 { grid-template-columns: repeat(4, 1fr); } }
+.stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
+.stat-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+.stat-value { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 600; color: var(--text-primary); }
+.stat-value.accent { color: var(--accent); }
+.stat-value.warn { color: var(--warn); }
+
+/* Chart container */
+.chart-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+.chart-box svg { width: 100%; height: auto; display: block; }
+
+/* Footer */
+.site-footer { border-top: 1px solid var(--border); margin-top: 6rem; padding: 2.5rem 0; background: color-mix(in srgb, var(--bg-subtle) 50%, var(--bg-base)); font-size: 0.875rem; color: var(--text-secondary); }
+.footer-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin-bottom: 2rem; }
+@media (min-width: 768px) { .footer-grid { grid-template-columns: repeat(4, 1fr); } }
+.footer-grid h4 { font-size: 0.9375rem; color: var(--text-primary); margin-bottom: 0.75rem; }
+.footer-grid ul { list-style: none; }
+.footer-grid li { margin-bottom: 0.5rem; }
+.footer-grid a { color: var(--text-secondary); text-decoration: none; cursor: pointer; }
+.footer-grid a:hover { color: var(--accent); }
+.footer-bottom { border-top: 1px solid var(--border); padding-top: 1.5rem; font-size: 0.75rem; color: var(--text-muted); line-height: 1.7; }
+.footer-bottom p { margin-bottom: 0.5rem; }
+
+/* Library */
+.lib-filters { display: flex; flex-wrap: wrap; gap: 1.5rem; margin: 2rem 0; }
+.lib-filter-row { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+.lib-filter-row > span { color: var(--text-muted); font-size: 0.875rem; margin-right: 0.25rem; }
+.lib-chip { padding: 4px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: all 200ms; font-family: inherit; }
+.lib-chip:hover { border-color: var(--accent); }
+.lib-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
+.lib-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 0.75rem; transition: all 200ms; }
+.lib-card.has-link { cursor: pointer; }
+.lib-card.has-link:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgb(0 0 0 / 0.04); }
+.lib-card-meta { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-size: 0.75rem; }
+.lib-card-meta .pill { padding: 2px 8px; background: var(--bg-subtle); color: var(--text-secondary); border-radius: 4px; font-weight: 500; }
+.lib-card h3 { font-size: 1.0625rem; margin-bottom: 0.125rem; }
+.lib-card .author { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+.lib-card .hook { font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 0.75rem; }
+.lib-card .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.75rem; }
+.lib-card .tags .mod { color: var(--accent); }
+.lib-card .tags .tag { color: var(--text-muted); }
+
+/* Thinkers */
+.thinkers-grid { display: grid; gap: 1rem; margin-top: 2rem; }
+@media (min-width: 768px) { .thinkers-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .thinkers-grid { grid-template-columns: repeat(3, 1fr); } }
+.thinker-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; cursor: pointer; transition: all 200ms; display: flex; flex-direction: column; gap: 1rem; font-family: inherit; text-align: left; }
+.thinker-card:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgb(0 0 0 / 0.06); }
+.thinker-head { display: flex; gap: 1rem; align-items: start; }
+.thinker-card .avatar { width: 56px; height: 56px; font-size: 1rem; }
+.thinker-card h3 { margin-bottom: 0.125rem; }
+.thinker-card .role { font-size: 0.75rem; color: var(--text-muted); }
+.thinker-card .one-line { color: var(--text-secondary); font-size: 0.9375rem; line-height: 1.7; flex: 1; }
+.thinker-tags { padding-top: 0.75rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem; flex-wrap: wrap; font-size: 0.75rem; color: var(--accent); }
+
+.thinker-detail { padding: 2rem 0; }
+.thinker-detail-head { display: flex; gap: 1.5rem; align-items: center; padding-bottom: 2rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.thinker-detail-head .avatar { width: 96px; height: 96px; font-size: 1.5rem; }
+.thinker-detail h1 { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.375rem; }
+.thinker-detail h1 .en { font-family: var(--font-mono); font-size: 1.125rem; color: var(--text-muted); font-weight: 400; }
+.thinker-detail .role { color: var(--text-secondary); margin-bottom: 0.25rem; }
+.thinker-ideas { display: grid; gap: 0.75rem; margin: 1.5rem 0; }
+@media (min-width: 768px) { .thinker-ideas { grid-template-columns: repeat(2, 1fr); } }
+.thinker-idea { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; display: flex; gap: 0.75rem; }
+.thinker-idea .num { font-family: var(--font-mono); font-size: 0.875rem; color: var(--accent); flex-shrink: 0; }
+.thinker-works li { margin-bottom: 0.5rem; }
+.thinker-works li::before { content: "·"; color: var(--accent); margin-right: 0.5rem; }
+
+/* My list */
+.my-toolbar { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 2rem 0; }
+.modules-progress { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+@media (min-width: 768px) { .modules-progress { grid-template-columns: repeat(7, 1fr); } }
+.module-pill {
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px; text-align: center; font-size: 0.875rem; color: var(--text-muted);
+}
+.module-pill.done { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--accent); }
+.module-pill .num { font-family: var(--font-mono); font-size: 0.75rem; margin-bottom: 0.25rem; }
+.module-pill .name { font-weight: 500; }
+.reflection-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 0.75rem; }
+.reflection-item .meta { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; font-size: 0.75rem; align-items: center; }
+.reflection-item .meta .pill { padding: 2px 8px; background: var(--bg-subtle); color: var(--text-secondary); border-radius: 4px; }
+.reflection-item .question { font-size: 0.875rem; color: var(--text-secondary); font-style: italic; margin-bottom: 0.5rem; }
+.reflection-item .answer { color: var(--text-primary); line-height: 1.7; }
+.empty { border: 1px dashed var(--border); border-radius: 12px; padding: 3rem; text-align: center; color: var(--text-muted); }
+
+/* Decision journal */
+.dj-form { display: flex; flex-direction: column; gap: 1rem; }
+.dj-list-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 0.75rem; }
+.dj-list-head { display: flex; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.5rem; }
+.dj-decision { font-weight: 500; color: var(--text-primary); flex: 1; }
+.dj-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; gap: 0.5rem; align-items: center; }
+
+/* Dialog visibility */
+[hidden] { display: none !important; }
+.row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+
+/* SVG chart helpers */
+.axis-line { stroke: var(--border); stroke-width: 1; }
+.axis-text { font-size: 11px; fill: var(--text-muted); font-family: var(--font-mono); }
+.grid-line { stroke: var(--border); stroke-dasharray: 3 3; stroke-width: 1; }
+.legend { display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.8125rem; color: var(--text-secondary); margin-top: 0.5rem; }
+.legend-item { display: flex; align-items: center; gap: 0.375rem; }
+.legend-swatch { width: 14px; height: 2px; border-radius: 1px; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" data-nav="home">人生算法</a>
+    <nav class="nav-main" id="navMain"></nav>
+    <div class="nav-right">
+      <button class="icon-btn" data-nav="library" title="延伸阅读" aria-label="延伸阅读">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      </button>
+      <button class="icon-btn" data-nav="my" title="我的清单" aria-label="我的清单">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7 4h10a2 2 0 012 2v14l-7-3-7 3V6a2 2 0 012-2z"/></svg>
+      </button>
+      <button class="icon-btn" id="themeToggle" title="切换主题" aria-label="切换主题">
+        <svg id="themeIconLight" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        <svg id="themeIconDark" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" hidden><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+      <button class="icon-btn menu-toggle" id="menuToggle" aria-label="菜单">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+  <nav class="menu-mobile" id="menuMobile"></nav>
+  <div class="progress-bar"><div id="progressFill" style="width:0"></div></div>
+</header>
+
+<main class="container" id="main">
+  <!-- Pages mount here. Each page is `<section class="page" data-page="...">...</section>` -->
+  <section class="page active" data-page="home">
+    <div class="hero">
+      <p class="hero-eyebrow">一份交互式学习产品</p>
+      <h1 class="t-display">人生算法<span class="text-accent">.</span><br><span class="gray">不是答案,是一种思考方式。</span></h1>
+      <p>7 个维度的系统讲解,8 个交互式模拟器,一份可带走的算法清单。<br>从"听过"到"会用",从此面对选择,你不再只靠直觉。</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary btn-lg" data-nav="m-cognition">开始 5 分钟体验 →</button>
+        <button class="btn btn-secondary btn-lg" data-nav="library">直接看延伸阅读</button>
+      </div>
+    </div>
+
+    <div class="values">
+      <div class="value-item">
+        <svg class="icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5L12 3zM5 17l1 3 3 1-3 1-1 3-1-3-3-1 3-1 1-3z"/></svg>
+        <h3>鸡汤告诉你 What,本页教你 How</h3>
+        <p>不靠"成功故事",靠跨学科的概念框架。每个观点都可被反例修正。</p>
+      </div>
+      <div class="value-item">
+        <svg class="icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14.7 6.3l4 4-9.4 9.4-4 4 .7-4.7L14.7 6.3z"/></svg>
+        <h3>不靠故事,靠模拟器</h3>
+        <p>每个抽象概念都配一个交互工具,让你在点击与输入中亲手验证它。</p>
+      </div>
+      <div class="value-item">
+        <svg class="icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16,8 14,14 8,16 10,10"/></svg>
+        <h3>带走属于你自己的清单</h3>
+        <p>所有反思与参数本地保存,可一键导出 Markdown 个性化算法手册。</p>
+      </div>
+    </div>
+
+    <div class="section" style="padding:2rem 0;">
+      <h2 class="t-h1">7 个维度的学习路径</h2>
+      <p class="section-sub">建议按顺序学习;熟悉的用户也可以直接跳转到任意模块。</p>
+      <div class="module-grid" id="moduleGrid"></div>
+    </div>
+
+    <div class="section" style="padding:3rem 0; border-top:1px solid var(--border);">
+      <h2 class="t-h1">按你当下的问题进入</h2>
+      <p class="section-sub">如果你正在面对一个具体处境,我们建议这条路径。</p>
+      <div class="path-grid" id="pathGrid"></div>
+    </div>
+
+    <div class="section" style="padding:3rem 0; border-top:1px solid var(--border);">
+      <div class="trust-box">
+        <p class="hero-eyebrow">内容来源</p>
+        <h3 class="t-h2" style="margin-bottom:0.75rem;">整合自 12 位思想家、5 个学科领域、20+ 部经典文献</h3>
+        <p class="text-secondary" style="line-height:1.7; max-width:42rem; margin-bottom:1rem;">涵盖芒格、纳瓦尔、巴菲特、Ray Dalio、Daniel Kahneman、Nassim Taleb、Jeff Bezos 等思想家;融合心理学、行为经济学、决策科学、博弈论、统计思维。</p>
+        <blockquote class="trust-quote">"如果你想说服别人,诉诸利益,而非诉诸理性。"</blockquote>
+        <p class="t-meta">— 查理·芒格,《穷查理宝典》</p>
+        <div style="border-top:1px solid var(--border); margin-top:1.5rem; padding-top:1.25rem; font-size:0.8125rem; color:var(--text-muted); line-height:1.7;">
+          <b style="color:var(--text-secondary);">致谢: </b>中文语境下"人生算法"概念的系统化表达,主要受到老喻 (喻颖正) 同名作品的启发。本网页为独立解读,不直接引用其原文。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Module 1: Cognition ===== -->
+  <section class="page" data-page="m-cognition">
+    <div class="module-header">
+      <div class="crumbs"><a data-nav="home">首页</a><span class="sep">/</span><span>模块 01 · 10 分钟 · 基础</span></div>
+      <h1 class="t-h1">认知 <span class="en">Cognition</span></h1>
+      <p class="hook">你眼中的世界,决定你看到什么。</p>
+    </div>
+    <div class="module-content">
+      <p class="lede">先问一个反直觉的问题:你是不是觉得自己挺理性的?</p>
+      <div class="prose">
+        <p>1974 年,Daniel Kahneman 与 Amos Tversky 发表了一篇看似平凡的论文,后来彻底改写了人类对"自己"的认知。他们用一系列简单实验证明: <strong>大多数人在大多数情境里,并不是用"理性"在思考,而是用一些被称为"启发式"的捷径在思考</strong>。这些捷径平时帮我们节省脑力,但偶尔会把我们引到非常错误的地方 — 而且我们意识不到。</p>
+        <p>所谓"认知",不是看你"知道多少",而是看你<strong>用什么样的镜片</strong>看世界。在"人生算法"里,认知是第一道工序:输入再正确,如果镜片是扭曲的,输出也无法对。</p>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">你眼中的世界,决定你看到什么</h2>
+        <div class="prose"><p>人脑不是一台 CPU,而是一台老旧的、需要省电的、由进化塑造的"启发式机器"。它在不知不觉中,通过几种方式扭曲了输入:</p></div>
+        <div class="concept-grid cols-2">
+          <div class="concept-card">
+            <div class="concept-card-head"><h3>心智模型</h3><span class="badge">芒格</span></div>
+            <p>你脑中预装的"看世界的模式"。芒格说:"<em>你必须把每一种模型都装进脑子里,变成一张网</em>"。单一模型 = 一把锤子,所有问题都像钉子。</p>
+          </div>
+          <div class="concept-card">
+            <div class="concept-card-head"><h3>第一性原理</h3><span class="badge">物理学</span></div>
+            <p>不依赖类比,从最不可拆分的事实推理。Musk:"<em>不是因为别人这样做,所以我这样做</em>"。对抗"惯性思维"的最强武器。</p>
+          </div>
+          <div class="concept-card">
+            <div class="concept-card-head"><h3>认知偏差</h3><span class="badge">Kahneman</span></div>
+            <p>系统性的、可预测的判断错误。常见的有:锚定效应、确认偏差、损失厌恶、可得性偏差。坏消息:你无法消除偏差。好消息:你可以识别它。</p>
+          </div>
+          <div class="concept-card">
+            <div class="concept-card-head"><h3>贝叶斯更新</h3><span class="badge">概率论</span></div>
+            <p>不要用"对错"看世界,用"概率"看世界。新证据出现时,温柔地修改你的概率,而不是死守原观点。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">为什么"理性"不是默认状态</h2>
+        <div class="prose">
+          <p>Kahneman 在《思考,快与慢》中提出了广为流传的"双系统"理论:</p>
+          <ul>
+            <li><strong>系统 1</strong>: 快、自动、不费力。"2+2=?" 你不需要"想"。</li>
+            <li><strong>系统 2</strong>: 慢、刻意、费力。"17×24=?" 你必须"算"。</li>
+          </ul>
+          <p>系统 1 占据了你 95% 的决策。<strong>认知偏差,几乎全部都是系统 1 在你不察觉时做的"代笔"</strong>。学会"叫醒系统 2",是对抗偏差的唯一办法。</p>
+        </div>
+        <div class="callout callout-insight">
+          <div class="callout-label">洞察</div>
+          认知升级,不是"学更多",而是学会"在该慢的时候慢下来"。这本身,就是一种算法。
+        </div>
+      </div>
+
+      <button class="tool-link" data-nav="t-bias-test">
+        <div>
+          <div class="tool-link-eyebrow">交互式小程序</div>
+          <h3>→ 偏差自检测试</h3>
+          <p>用 5 道经典心理学题目,直接体验你自己的偏差地图。</p>
+        </div>
+        <span class="arrow">⟶</span>
+      </button>
+
+      <div class="quote-card">
+        <blockquote>"如果你想说服别人,诉诸利益,而非诉诸理性。"</blockquote>
+        <div class="quote-meta">
+          <div class="avatar" style="background:#C2410C;">芒</div>
+          <div><div class="quote-author">查理·芒格</div><div class="quote-role">伯克希尔哈撒韦副主席</div></div>
+          <span class="quote-source">— 《穷查理宝典》</span>
+        </div>
+        <p class="quote-guide"><b>编辑导读 · </b>这句话反直觉的地方在于:它建议你把自己当作'非理性的人'去理解他人,这本身就是一种最高级的理性。</p>
+      </div>
+
+      <div class="compare">
+        <div class="compare-row"><div>维度</div><div>未升级的认知</div><div>升级后的认知</div></div>
+        <div class="compare-row"><div>看到一个观点</div><div>对错</div><div>概率</div></div>
+        <div class="compare-row"><div>遇到反对</div><div>防御</div><div>更新</div></div>
+        <div class="compare-row"><div>做判断</div><div>凭直觉 (系统 1)</div><div>刻意慢下来 (系统 2)</div></div>
+        <div class="compare-row"><div>工具箱</div><div>一种思维模式</div><div>多元心智模型</div></div>
+        <div class="compare-row"><div>对自己</div><div>我很理性</div><div>我可能此刻正在偏</div></div>
+      </div>
+
+      <div class="reflection" data-reflection data-module="cognition" data-question="过去一周,你做过的哪个判断,事后看是被某种偏差影响的?是哪一种?">
+        <div class="reflection-head"><div class="reflection-icon">?</div><h4>过去一周,你做过的哪个判断,事后看是被某种偏差影响的?是哪一种?</h4></div>
+        <textarea placeholder="写下你的想法,至少 10 字会自动保存到「我的清单」..."></textarea>
+        <div class="reflection-foot"><span class="char-count">0 字</span><span class="reflection-saved" hidden>✓ 已加入「我的清单」</span></div>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">延伸阅读</h2>
+        <div class="prose"><ul>
+          <li><strong>《思考,快与慢》</strong> Daniel Kahneman — 双系统理论的源头</li>
+          <li><strong>《穷查理宝典》</strong> Charlie Munger — 多元思维模型清单</li>
+          <li><strong>《Superforecasting》</strong> Philip Tetlock — 用贝叶斯更新做超级预测</li>
+        </ul></div>
+      </div>
+
+      <div class="module-foot-cta">
+        <h3 class="t-h3">本模块完成</h3>
+        <p>如果你完成了上方的反思与互动,把这个模块标记为完成,顶部进度条会前进一步。</p>
+        <button class="btn btn-primary" data-complete-module="cognition">标记本模块为完成</button>
+      </div>
+      <div class="module-nav" data-prev="" data-next="m-decision"></div>
+    </div>
+  </section>
+
+  <!-- ===== Module 2: Decision ===== -->
+  <section class="page" data-page="m-decision">
+    <div class="module-header">
+      <div class="crumbs"><a data-nav="home">首页</a><span class="sep">/</span><span>模块 02 · 12 分钟 · 基础</span></div>
+      <h1 class="t-h1">决策 <span class="en">Decision</span></h1>
+      <p class="hook">在不确定中行动的方法论。</p>
+    </div>
+    <div class="module-content">
+      <p class="lede">一个反直觉的事实:大多数人,把 90% 的决策时间花在 10% 不重要的事情上。</p>
+      <div class="prose">
+        <p>你今晚吃什么,反复纠结 30 分钟。你要不要换工作,5 分钟就拍板。<strong>这两件事,在"决策预算"上完全反了</strong>。</p>
+        <p>人生算法的第二道工序:决策。它不教你"做什么决定",它教你"怎么决定一个决定"。</p>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">决策质量 ≠ 结果质量</h2>
+        <div class="prose">
+          <p>扑克世界冠军 Annie Duke 的一句被反复引用的话:</p>
+          <blockquote>"我们倾向于用结果来评判决策的质量,但实际上,一个糟糕的决定有时也会带来好结果,而一个伟大的决定有时也会带来坏结果。"</blockquote>
+        </div>
+        <div class="concept-grid cols-2">
+          <div class="concept-card"><div class="concept-card-head"><h3>决策质量</h3><span class="badge">可控</span></div><p>在你能拿到的信息下,你的判断是否在数学期望上是更优的。这个,你可以努力提高。</p></div>
+          <div class="concept-card"><div class="concept-card-head"><h3>结果</h3><span class="badge">不可控</span></div><p>你的决策 + 不在你掌控里的"运气"共同决定。运气好,坏决策也能赢一次。</p></div>
+        </div>
+        <div class="callout callout-insight"><div class="callout-label">洞察</div>长期来看,你只能控制"决策质量"。如果只盯着结果,你会从对的事中学到错的教训。</div>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">Type 1 决策 vs Type 2 决策</h2>
+        <div class="prose">
+          <p>Jeff Bezos 在 1997 年股东信里提出了一个被无数公司沿用至今的框架:</p>
+          <ul>
+            <li><strong>Type 1 决策 (单向门)</strong>: 不可逆。一旦做了,回不去。需要慎重、缓慢、咨询多人。</li>
+            <li><strong>Type 2 决策 (双向门)</strong>: 可逆。错了可以回头。应该快速、轻量、由小团队拍板。</li>
+          </ul>
+          <p>Bezos 的关键洞见:<strong>大多数决策,是 Type 2 的</strong>。但人们经常用 Type 1 的标准去对待它们 — 过度纠结,过度调研,过度等待。</p>
+          <p>反过来也成立:<strong>对真正 Type 1 的决定 (婚姻、移民、创业、巨额借款),一定不要用 Type 2 的速度去做</strong>。</p>
+        </div>
+      </div>
+
+      <div class="quote-card">
+        <blockquote>"大多数决策都应该在你拥有 70% 你希望拥有的信息时做出。如果等到 90%,大多数情况下你已经太慢了。"</blockquote>
+        <div class="quote-meta">
+          <div class="avatar" style="background:#A78BFA;">JB</div>
+          <div><div class="quote-author">Jeff Bezos</div><div class="quote-role">Amazon 创始人</div></div>
+          <span class="quote-source">— 1997 致股东信</span>
+        </div>
+        <p class="quote-guide"><b>编辑导读 · </b>这句话不是为了快而快,而是因为他知道大部分决定是 Type 2 — 等不起,也不必等。</p>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">期望值思维 + 10/10/10 法则</h2>
+        <div class="prose">
+          <p>选项 A: 100% 拿到 100 元;选项 B: 50% 拿到 250 元,50% 什么都没有。多数人会选 A,但 B 的<strong>期望值 = 125 元</strong>,数学上更优。这不意味着每次都该选 B,但 <strong>如果这种选择重复出现,长期一定要选 B</strong>。</p>
+          <p>10/10/10 法则:面对一个决定时,问自己 <em>10 分钟后 / 10 个月后 / 10 年后,我会怎么想?</em> 很多让人当下纠结的事情,在 10 年的尺度下毫无意义。</p>
+        </div>
+      </div>
+
+      <button class="tool-link" data-nav="t-decision-cost">
+        <div>
+          <div class="tool-link-eyebrow">交互式小程序</div>
+          <h3>→ 决策成本计算器</h3>
+          <p>判断你正在面对的决定属于哪一类,以及值得花多少时间想。</p>
+        </div>
+        <span class="arrow">⟶</span>
+      </button>
+
+      <div class="reflection" data-reflection data-module="decision" data-question="你最近做过的一个决定,它是 Type 1 还是 Type 2?你为它投入的时间,是否匹配?">
+        <div class="reflection-head"><div class="reflection-icon">?</div><h4>你最近做过的一个决定,它是 Type 1 还是 Type 2?你为它投入的时间,是否匹配?</h4></div>
+        <textarea placeholder="写下你的想法,至少 10 字会自动保存到「我的清单」..."></textarea>
+        <div class="reflection-foot"><span class="char-count">0 字</span><span class="reflection-saved" hidden>✓ 已加入「我的清单」</span></div>
+      </div>
+
+      <div class="module-foot-cta">
+        <h3 class="t-h3">本模块完成</h3>
+        <p>如果你完成了上方的反思与互动,把这个模块标记为完成。</p>
+        <button class="btn btn-primary" data-complete-module="decision">标记本模块为完成</button>
+      </div>
+      <div class="module-nav" data-prev="m-cognition" data-next="m-compounding"></div>
+    </div>
+  </section>
+
+  <!-- ===== Module 3: Compounding ===== -->
+  <section class="page" data-page="m-compounding">
+    <div class="module-header">
+      <div class="crumbs"><a data-nav="home">首页</a><span class="sep">/</span><span>模块 03 · 10 分钟 · 基础</span></div>
+      <h1 class="t-h1">复利 <span class="en">Compounding</span></h1>
+      <p class="hook">时间的魔法,与时间的陷阱。</p>
+    </div>
+    <div class="module-content">
+      <p class="lede">复利不性感。它在前期看起来像直线,直到某一天它突然炸开。</p>
+      <div class="prose">
+        <p>每天提升 1%,一年后是 37.78 倍。每天后退 1%,一年后只剩 0.03 倍。这个公式 (1.01<sup>365</sup>) 流传甚广,但它误导了大多数人 — 因为它给了你一个错觉:<strong>复利的回报是均匀分布的</strong>。</p>
+        <p>真实的复利曲线,前 80% 的时间几乎贴着横轴。大多数人,正是在曲线"看起来没起色"的那段时间放弃。</p>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">三种复利:不只是钱</h2>
+        <div class="concept-grid cols-3">
+          <div class="concept-card"><div class="concept-card-head"><h3>资本复利</h3><span class="badge">最常见</span></div><p>利滚利,巴菲特财富的 99% 是 60 岁之后获得的。特点:<em>线性输入,非线性输出</em>。</p></div>
+          <div class="concept-card"><div class="concept-card-head"><h3>能力复利</h3><span class="badge">最被低估</span></div><p>新技能建立在旧技能之上。学了概率论,你看世界的方式从此不同。特点:<em>会迁移、会组合、会自加速</em>。</p></div>
+          <div class="concept-card"><div class="concept-card-head"><h3>关系复利</h3><span class="badge">最难量化</span></div><p>5 年来定期联系的朋友,在你需要时是"网络资本"。特点:<em>必须主动维护,一旦断裂极难重建</em>。</p></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">Naval 的"特定知识 + 杠杆"公式</h2>
+        <div class="prose">
+          <p>纳瓦尔在他著名的"How to Get Rich"系列里,把财富复利拆成两个关键变量:</p>
+          <ul>
+            <li><strong>特定知识 (Specific Knowledge)</strong>: 学校教不了、容易让你"显得不像在工作"的、强烈反映你独特性的能力。</li>
+            <li><strong>杠杆 (Leverage)</strong>: 把一次输入放大成 N 次输出的方式。三种杠杆是:资本、人力、代码与媒体 (零边际成本)。</li>
+          </ul>
+          <p>复利之所以强大,是因为<strong>"特定知识 × 杠杆"也在复利</strong>。一个写代码的人,他的代码每天 24 小时都在为他工作 — 这就是杠杆的复利。</p>
+        </div>
+      </div>
+
+      <div class="quote-card">
+        <blockquote>"复利,不仅是数学概念,而是一切因果。健康、关系、心智、财富,无一例外。"</blockquote>
+        <div class="quote-meta">
+          <div class="avatar" style="background:#0F766E;">NR</div>
+          <div><div class="quote-author">纳瓦尔·拉维肯</div><div class="quote-role">AngelList 创始人,投资者</div></div>
+          <span class="quote-source">— 《纳瓦尔宝典》</span>
+        </div>
+        <p class="quote-guide"><b>编辑导读 · </b>这句话的关键是'不仅是数学'。当你把复利当成世界观,而不是公式,你会停止追逐'一夜暴富'。</p>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">负复利:坏习惯的恐怖</h2>
+        <div class="prose">
+          <p>每天后退 1%,365 天后是什么?<strong>0.99<sup>365</sup> ≈ 0.026</strong>。一年下来,只剩起点的 2.6%。</p>
+          <p>坏习惯的可怕之处,不是它"今天让你后退 1%",而是它<strong>剥夺了未来本可以叠加的复利</strong>。每天多刷 1 小时短视频,5 年后你失去的不是 1825 小时,而是 1825 小时本可以变成的某项能力的复利。</p>
+        </div>
+        <div class="callout callout-warn"><div class="callout-label">警告</div>复利的对称性:好的输入会复利,坏的输入也会复利。每天的微小后退,长期下来比一次大失败更难修复。</div>
+      </div>
+
+      <button class="tool-link" data-nav="t-compound-simulator">
+        <div>
+          <div class="tool-link-eyebrow">交互式小程序</div>
+          <h3>→ 复利成长模拟器</h3>
+          <p>拖动滑块,看看每天 ±1% 在 10 年后的真实差距 — 比公式更直观。</p>
+        </div>
+        <span class="arrow">⟶</span>
+      </button>
+
+      <div class="reflection" data-reflection data-module="compounding" data-question="你正在做的哪件事,处于复利曲线的'看起来没起色'阶段?它如果坚持 5 年,会变成什么?">
+        <div class="reflection-head"><div class="reflection-icon">?</div><h4>你正在做的哪件事,处于复利曲线的'看起来没起色'阶段?它如果坚持 5 年,会变成什么?</h4></div>
+        <textarea placeholder="写下你的想法,至少 10 字会自动保存到「我的清单」..."></textarea>
+        <div class="reflection-foot"><span class="char-count">0 字</span><span class="reflection-saved" hidden>✓ 已加入「我的清单」</span></div>
+      </div>
+
+      <div class="module-foot-cta">
+        <h3 class="t-h3">本模块完成</h3>
+        <button class="btn btn-primary" data-complete-module="compounding">标记本模块为完成</button>
+      </div>
+      <div class="module-nav" data-prev="m-decision" data-next="m-choice"></div>
+    </div>
+  </section>
+
+  <!-- ===== Module 4: Choice ===== -->
+  <section class="page" data-page="m-choice">
+    <div class="module-header">
+      <div class="crumbs"><a data-nav="home">首页</a><span class="sep">/</span><span>模块 04 · 12 分钟 · 进阶</span></div>
+      <h1 class="t-h1">选择 <span class="en">Choice</span></h1>
+      <p class="hook">你不是在选 A,你在放弃所有的非 A。</p>
+    </div>
+    <div class="module-content">
+      <p class="lede">每一次选择,你都在拒绝所有"非这一选项"的未来。</p>
+      <div class="prose">
+        <p>经济学有一个概念叫"机会成本",学过的人都听过,但绝大多数人没有真正理解它。因为机会成本不是<em>另一个选项的价值</em>,而是<em>另一个选项经过复利之后的价值</em>。</p>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">什么是真正的机会成本</h2>
+        <div class="prose">
+          <ul>
+            <li>错误用法:"我看了 1 小时电视的机会成本是 1 小时学习。"</li>
+            <li>正确用法:"我每天看 1 小时电视的机会成本,是 5 年后我本可以拥有的某项能力的复利。"</li>
+          </ul>
+        </div>
+        <div class="callout callout-insight"><div class="callout-label">洞察</div>机会成本不是一个数字,是一条曲线。短期看不到,长期会暴击你。</div>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">显性成本 vs 隐性成本</h2>
+        <div class="concept-grid cols-2">
+          <div class="concept-card"><div class="concept-card-head"><h3>显性成本</h3><span class="badge">看得见</span></div><p>你直接付出的钱、时间、精力。账单上写得清清楚楚,但常常是冰山的一角。</p></div>
+          <div class="concept-card"><div class="concept-card-head"><h3>隐性成本</h3><span class="badge">看不见</span></div><p>机会成本 + 心智成本 + 关系成本 + 健康成本。不写在账单上,但在长期复利后远远超过显性成本。</p></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">最小遗憾原则</h2>
+        <div class="prose">
+          <p>Bezos 在创立 Amazon 之前,做了一个著名的内心实验。他想象自己 80 岁,回望一生:</p>
+          <blockquote>"我不想 80 岁的时候后悔自己没有去尝试这件事。我会后悔不去做,但不会后悔失败。"</blockquote>
+          <p>注意:这个原则只适用于<strong>不可逆的、影响终身的选择</strong>。对日常小事用这个,会让你陷入虚无感的深渊。</p>
+        </div>
+      </div>
+
+      <div class="quote-card">
+        <blockquote>"选择是一个减法运算 — 选择什么不做,比选择做什么更重要。"</blockquote>
+        <div class="quote-meta">
+          <div class="avatar" style="background:#7C3AED;">SJ</div>
+          <div><div class="quote-author">史蒂夫·乔布斯</div><div class="quote-role">Apple 联合创始人</div></div>
+          <span class="quote-source">— 2004</span>
+        </div>
+        <p class="quote-guide"><b>编辑导读 · </b>选择不是把时间花到正确的事上,而是把时间从所有不正确的事上拿回来。</p>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">选项漏斗</h2>
+        <div class="prose">
+          <p>心理学家 Barry Schwartz 在《选择的悖论》中提出:<strong>选项越多,人越焦虑、越不容易做决定、对最终结果越不满意</strong>。</p>
+          <ol>
+            <li><strong>第一层</strong>: 哪些是显然不行的?(用一两个硬条件,快速排除)</li>
+            <li><strong>第二层</strong>: 剩下的里,哪些是显然好的?(同样用硬条件)</li>
+            <li><strong>第三层</strong>: 剩下的几个 (≤ 3),才进入"细致比较"。</li>
+          </ol>
+          <p>80% 的选择质量,来自这个漏斗的前两层 — 也就是"<strong>什么不要</strong>"这个判断。</p>
+        </div>
+      </div>
+
+      <button class="tool-link" data-nav="t-opportunity-cost">
+        <div>
+          <div class="tool-link-eyebrow">交互式小程序</div>
+          <h3>→ 机会成本对比器</h3>
+          <p>把"看不见的成本"可视化。看 5 年后,你究竟用什么换了什么。</p>
+        </div>
+        <span class="arrow">⟶</span>
+      </button>
+
+      <button class="tool-link" data-nav="t-life-choice">
+        <div>
+          <div class="tool-link-eyebrow">交互式小程序 · 进阶</div>
+          <h3>→ 人生选择模拟器</h3>
+          <p>在 100 个平行宇宙中看 A / B 两条路径的分布,而非单点。</p>
+        </div>
+        <span class="arrow">⟶</span>
+      </button>
+
+      <div class="reflection" data-reflection data-module="choice" data-question="你最近在反复选择 (或反复后悔) 的一件事是什么?它的真正机会成本 (复利后) 是什么?">
+        <div class="reflection-head"><div class="reflection-icon">?</div><h4>你最近在反复选择 (或反复后悔) 的一件事是什么?它的真正机会成本 (复利后) 是什么?</h4></div>
+        <textarea placeholder="写下你的想法..."></textarea>
+        <div class="reflection-foot"><span class="char-count">0 字</span><span class="reflection-saved" hidden>✓ 已加入「我的清单」</span></div>
+      </div>
+
+      <div class="module-foot-cta">
+        <h3 class="t-h3">本模块完成</h3>
+        <button class="btn btn-primary" data-complete-module="choice">标记本模块为完成</button>
+      </div>
+      <div class="module-nav" data-prev="m-compounding" data-next="m-feedback"></div>
+    </div>
+  </section>
+
+  <!-- ===== Module 5: Feedback ===== -->
+  <section class="page" data-page="m-feedback">
+    <div class="module-header">
+      <div class="crumbs"><a data-nav="home">首页</a><span class="sep">/</span><span>模块 05 · 10 分钟 · 进阶</span></div>
+      <h1 class="t-h1">反馈 <span class="en">Feedback</span></h1>
+      <p class="hook">好结果未必来自好决策。</p>
+    </div>
+    <div class="module-content">
+      <p class="lede">一个糟糕的决定,有时也会带来好结果。一个优秀的决定,有时也会失败。</p>
+      <div class="prose">
+        <p>学会从结果中学习,听起来理所当然。但真相是:<strong>大部分人从结果中学到的,是错的教训</strong>。因为人脑天生擅长"事后讲故事" — 不管结果如何,总能拼出一套合理的因果。</p>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">结果偏差:反馈的最大杀手</h2>
+        <div class="prose">
+          <p>经典心理学实验:同一个医疗决策,只是结果不同。结果好 → 受访者打分:决策很英明。结果坏 → 决策很糟糕。<strong>决策本身一字未变,只是结果变了,评价却完全相反</strong>。</p>
+        </div>
+        <div class="callout callout-warn"><div class="callout-label">警告</div>结果偏差让你从赌博式决策的赢局里学到"我很对",从严谨决策的输局里学到"我错了"。长期下来,你会越赌越大,直到一次毁灭性的失败。</div>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">Ray Dalio 的"痛苦 + 反思 = 进步"</h2>
+        <div class="prose">
+          <p>Bridgewater 创始人 Ray Dalio,1982 年因为一次"全押式"判断,几乎让公司破产。他后来花了 10 年,把这次失败拆解成一套机器化的反馈系统:</p>
+          <ol>
+            <li><strong>记录每一个决策</strong>,包括当时的依据、不知道的信息、预测的概率。</li>
+            <li><strong>定期复盘</strong>,但<em>不看结果是好是坏</em>,只看"决策本身在当时的信息下,是否合理"。</li>
+            <li><strong>提取"原则"</strong>,把每次复盘的洞察抽象成可复用的规则。</li>
+            <li><strong>新决策必须先过原则的筛子</strong>,绕开过去已经踩过的坑。</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="quote-card">
+        <blockquote>"痛苦 + 反思 = 进步。痛苦本身不会让你进步,只有反思会。"</blockquote>
+        <div class="quote-meta">
+          <div class="avatar" style="background:#D97706;">RD</div>
+          <div><div class="quote-author">Ray Dalio</div><div class="quote-role">Bridgewater 创始人</div></div>
+          <span class="quote-source">— 《Principles》</span>
+        </div>
+        <p class="quote-guide"><b>编辑导读 · </b>这句话的另一面是:'快乐 + 反思 = 进步'。但人们总在快乐时停止反思。</p>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">决策日志:对抗事后归因</h2>
+        <div class="concept-grid cols-2">
+          <div class="concept-card"><div class="concept-card-head"><h3>① 决策是什么</h3><span class="badge">事实</span></div><p>用一句话写清楚你正在决定什么、有哪几个选项。</p></div>
+          <div class="concept-card"><div class="concept-card-head"><h3>② 你预测的结果</h3><span class="badge">概率</span></div><p>写出你预测最可能的结果,以及你赋予的概率 (例:60%)。</p></div>
+          <div class="concept-card"><div class="concept-card-head"><h3>③ 你的依据</h3><span class="badge">逻辑</span></div><p>为什么你这样判断?用 2-3 个事实或推理支撑。</p></div>
+          <div class="concept-card"><div class="concept-card-head"><h3>④ 你不知道什么</h3><span class="badge">盲区</span></div><p>哪些关键信息你其实不知道?这些信息如何会反转你的决定?</p></div>
+        </div>
+      </div>
+
+      <button class="tool-link" data-nav="t-decision-journal">
+        <div>
+          <div class="tool-link-eyebrow">交互式小程序</div>
+          <h3>→ 决策日志练习</h3>
+          <p>花 5 分钟,记录一个你正在面对的决定。可导出 .ics 日历提醒,3 个月后复盘。</p>
+        </div>
+        <span class="arrow">⟶</span>
+      </button>
+
+      <div class="reflection" data-reflection data-module="feedback" data-question="过去一年里,有没有一个'结果好,但决策其实草率'的事?如果重来一次,你会怎么改?">
+        <div class="reflection-head"><div class="reflection-icon">?</div><h4>过去一年里,有没有一个'结果好,但决策其实草率'的事?如果重来一次,你会怎么改?</h4></div>
+        <textarea placeholder="写下你的想法..."></textarea>
+        <div class="reflection-foot"><span class="char-count">0 字</span><span class="reflection-saved" hidden>✓ 已加入「我的清单」</span></div>
+      </div>
+
+      <div class="module-foot-cta">
+        <h3 class="t-h3">本模块完成</h3>
+        <button class="btn btn-primary" data-complete-module="feedback">标记本模块为完成</button>
+      </div>
+      <div class="module-nav" data-prev="m-choice" data-next="m-long-term"></div>
+    </div>
+  </section>
+
+  <!-- ===== Module 6: Long-term ===== -->
+  <section class="page" data-page="m-long-term">
+    <div class="module-header">
+      <div class="crumbs"><a data-nav="home">首页</a><span class="sep">/</span><span>模块 06 · 10 分钟 · 进阶</span></div>
+      <h1 class="t-h1">长期主义 <span class="en">Long-term</span></h1>
+      <p class="hook">慢就是快,反过来也成立。</p>
+    </div>
+    <div class="module-content">
+      <p class="lede">慢就是快。但反过来也成立 — 快,也常常就是慢。</p>
+      <div class="prose">
+        <p>长期主义不是"忍耐"。它是一种<strong>对世界因果尺度的判断</strong>:知道哪些事的因果链条很短 (今天努力,今天兑现),哪些事的因果链条很长 (今天努力,5 年后才显现)。</p>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">主观感受 vs 客观成果</h2>
+        <div class="prose">
+          <p>假设你开始练琴。前 3 个月你的<strong>主观感受</strong>是:每天进步明显,有反馈,有兴奋感。3 个月后,主观感受开始下降:每天感觉没什么变化。但你的<strong>客观水平</strong>仍在上升 — 你只是<em>感受不到</em>。</p>
+        </div>
+        <div class="callout callout-insight"><div class="callout-label">洞察</div>所有有价值的事,放弃高发期都在 3 个月、1 年、3 年这几个节点。知道这个,不一定能让你不想放弃,但能让你识别"这就是那个节点"。</div>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">Lindy Effect:时间是真正的滤网</h2>
+        <div class="prose">
+          <p>塔勒布在《反脆弱》中阐述了一个反直觉的观察:</p>
+          <blockquote>"对于不会衰老的事物 (思想、技术、文化),已经存在的时间,正比于它未来还能存在的时间。"</blockquote>
+          <p>一本被读了 100 年的书,有更高概率再被读 100 年。一本只流行了 1 年的畅销书,大概率 5 年内就消失。</p>
+        </div>
+        <div class="concept-grid cols-2">
+          <div class="concept-card"><div class="concept-card-head"><h3>可衰老事物</h3><span class="badge">如人体</span></div><p>活了 70 年的人,预期寿命比 30 年的人短。"已存在时间"是负信号。</p></div>
+          <div class="concept-card"><div class="concept-card-head"><h3>不衰老事物</h3><span class="badge">如思想</span></div><p>流传 100 年的思想,比流行 1 年的更可能再活 100 年。"已存在时间"是正信号。</p></div>
+        </div>
+      </div>
+
+      <div class="quote-card">
+        <blockquote>"股市是一个把钱从没有耐心的人手里转移到有耐心的人手里的装置。"</blockquote>
+        <div class="quote-meta">
+          <div class="avatar" style="background:#7C3AED;">WB</div>
+          <div><div class="quote-author">沃伦·巴菲特</div><div class="quote-role">伯克希尔哈撒韦董事长</div></div>
+          <span class="quote-source">— 多次股东大会</span>
+        </div>
+        <p class="quote-guide"><b>编辑导读 · </b>这句话的'股市'可以替换成'人生'。任何复利系统,都是耐心的转移装置。</p>
+      </div>
+
+      <button class="tool-link" data-nav="t-long-term-feedback">
+        <div>
+          <div class="tool-link-eyebrow">交互式小程序</div>
+          <h3>→ 长期反馈曲线</h3>
+          <p>选一项你正在做的事,看主观感受与客观成果的曲线在哪里分叉、在哪里反超。</p>
+        </div>
+        <span class="arrow">⟶</span>
+      </button>
+
+      <div class="reflection" data-reflection data-module="long-term" data-question="你正在做的哪件事,你恰好在'放弃高发期'?如果再坚持 1 年,会变成什么?">
+        <div class="reflection-head"><div class="reflection-icon">?</div><h4>你正在做的哪件事,你恰好在'放弃高发期'?如果再坚持 1 年,会变成什么?</h4></div>
+        <textarea placeholder="写下你的想法..."></textarea>
+        <div class="reflection-foot"><span class="char-count">0 字</span><span class="reflection-saved" hidden>✓ 已加入「我的清单」</span></div>
+      </div>
+
+      <div class="module-foot-cta">
+        <h3 class="t-h3">本模块完成</h3>
+        <button class="btn btn-primary" data-complete-module="long-term">标记本模块为完成</button>
+      </div>
+      <div class="module-nav" data-prev="m-feedback" data-next="m-risk"></div>
+    </div>
+  </section>
+
+  <!-- ===== Module 7: Risk ===== -->
+  <section class="page" data-page="m-risk">
+    <div class="module-header">
+      <div class="crumbs"><a data-nav="home">首页</a><span class="sep">/</span><span>模块 07 · 12 分钟 · 高级</span></div>
+      <h1 class="t-h1">风险 <span class="en">Risk</span></h1>
+      <p class="hook">不要在能赢的游戏里出局。</p>
+    </div>
+    <div class="module-content">
+      <p class="lede">人生算法的最后一道工序,是<strong>不被一击毙命</strong>。</p>
+      <div class="prose">
+        <p>所有前面的工序 — 认知、决策、复利、选择、反馈、长期主义 — 都建立在一个隐含前提之上:<strong>你还在场上</strong>。但只要你做的是"重复游戏",哪怕每一次的期望值都为正,只要存在 <strong>毁灭性风险 (Ruin Risk)</strong>,长期下来,你出局的概率几乎是 100%。</p>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">波动 ≠ 风险</h2>
+        <div class="concept-grid cols-2">
+          <div class="concept-card"><div class="concept-card-head"><h3>波动</h3><span class="badge">可恢复</span></div><p>短期上下起伏,但不会让你出局。股市跌 30%,你只要还在场上,就有反弹的机会。</p></div>
+          <div class="concept-card"><div class="concept-card-head"><h3>毁灭性风险</h3><span class="badge">不可恢复</span></div><p>一旦发生,你<em>永远出局</em>,没有"下一次"。用全部资金加 5 倍杠杆 — 涨跌一波动你就 0 了。</p></div>
+        </div>
+        <div class="callout callout-warn"><div class="callout-label">警告</div>很多人为了"减少波动"做了不必要的牺牲;很多人为了"追求收益"接受了不该接受的毁灭性风险。区分两者,是风险管理的第一原则。</div>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">凯利公式:仓位比胜率更重要</h2>
+        <div class="prose">
+          <p>1956 年贝尔实验室的 John Kelly 提出了公式:</p>
+          <p style="text-align:center; font-family:var(--font-mono); font-size:1.125rem;"><strong>f* = (b·p − q) / b</strong></p>
+          <p>这个公式的洞察是:<strong>胜率 60%、盈亏比 2:1 看起来很赚钱,但全押 100 局,你出局的概率超过 80%</strong>。期望值为正,完全不等于"长期一定能赚到钱"。</p>
+          <p>实际应用中,大多数顶级投资者用<strong>半凯利或四分之一凯利</strong>,因为现实中的胜率与盈亏比是估计值,留一半空间防止估错。</p>
+        </div>
+      </div>
+
+      <div class="quote-card">
+        <blockquote>"不要丢失什么是无法承担丢失的。第一原则:不亏钱。第二原则:永远不要忘记第一原则。"</blockquote>
+        <div class="quote-meta">
+          <div class="avatar" style="background:#7C3AED;">WB</div>
+          <div><div class="quote-author">沃伦·巴菲特</div><div class="quote-role">伯克希尔哈撒韦董事长</div></div>
+          <span class="quote-source">— 多次股东大会</span>
+        </div>
+        <p class="quote-guide"><b>编辑导读 · </b>这句话不是说'不要冒险',而是'不要冒会让你出局的险'。允许小亏,杜绝大亏。</p>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">塔勒布的反脆弱</h2>
+        <div class="prose">
+          <ul>
+            <li><strong>脆弱 (Fragile)</strong>: 怕波动,波动越大越受伤。</li>
+            <li><strong>强韧 (Robust)</strong>: 不怕波动,但也无法从中获益。</li>
+            <li><strong>反脆弱 (Antifragile)</strong>: 在波动中变得更强。例:免疫系统、肌肉。</li>
+          </ul>
+          <p>应用:不要做"小赚多次,大亏一次"的事 (脆弱);要做"小亏多次,大赚一次"的事 (反脆弱)。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="t-h2">风险预算</h2>
+        <div class="concept-grid cols-3">
+          <div class="concept-card"><div class="concept-card-head"><h3>安全区</h3><span class="badge">不允许失败</span></div><p>健康、底层财务安全、核心关系。"<strong>能避免毁灭性风险</strong>"为最高优先级。</p></div>
+          <div class="concept-card"><div class="concept-card-head"><h3>探索区</h3><span class="badge">允许失败</span></div><p>新技能、副业、新关系、小投资。允许犯错,期望从波动中获益 — 反脆弱区。</p></div>
+          <div class="concept-card"><div class="concept-card-head"><h3>禁区</h3><span class="badge">拒绝</span></div><p>即使期望值为正,也不做的事。例:全部身家 ALL IN、无止损杠杆、损害健康的快钱机会。</p></div>
+        </div>
+        <div class="prose"><p>大多数人的失败,不是在探索区试错失败,而是<strong>把禁区的事当成探索区做了</strong>。</p></div>
+      </div>
+
+      <button class="tool-link" data-nav="t-ruin-risk">
+        <div>
+          <div class="tool-link-eyebrow">交互式小程序</div>
+          <h3>→ 风险毁灭模拟器</h3>
+          <p>100 条蒙特卡洛路径,看哪怕只有 1% 的毁灭风险,长期下来出局率有多惊人。</p>
+        </div>
+        <span class="arrow">⟶</span>
+      </button>
+
+      <div class="callout callout-warn"><div class="callout-label">免责声明</div>本网页所有涉及金融、概率、仓位的模拟器与公式,仅用于教育目的,不构成投资、理财或其他专业建议。任何决策请结合自身情况并咨询专业人士。</div>
+
+      <div class="reflection" data-reflection data-module="risk" data-question="你目前所处的环境里,有没有一个'看起来期望值正,但其实包含毁灭性风险'的选项?">
+        <div class="reflection-head"><div class="reflection-icon">?</div><h4>你目前所处的环境里,有没有一个'看起来期望值正,但其实包含毁灭性风险'的选项?</h4></div>
+        <textarea placeholder="写下你的想法..."></textarea>
+        <div class="reflection-foot"><span class="char-count">0 字</span><span class="reflection-saved" hidden>✓ 已加入「我的清单」</span></div>
+      </div>
+
+      <div class="module-foot-cta">
+        <h3 class="t-h3">学完了七个模块</h3>
+        <p>恭喜走到这里。点击下方按钮标记完成,然后去「我的清单」导出属于你的算法手册。</p>
+        <button class="btn btn-primary" data-complete-module="risk">标记本模块为完成</button>
+      </div>
+      <div class="module-nav" data-prev="m-long-term" data-next="my" data-final="true"></div>
+    </div>
+  </section>
+
+  <!-- ===== Tool: Compound Simulator ===== -->
+  <section class="page" data-page="t-compound-simulator">
+    <div class="tool-page">
+      <div class="crumbs" style="margin-bottom:1.5rem;"><a data-nav="m-compounding">← 回到所属模块</a></div>
+      <p class="tool-eyebrow">交互式小程序</p>
+      <h1 class="t-h1">复利成长模拟器</h1>
+      <p class="desc">看到每天 1% 与每天 0% 在 10 年后的真实差距。</p>
+      <p class="aha">目标洞察 · 复利的拐点出现得很晚 — 大多数人在拐点前放弃。</p>
+
+      <div class="tool-grid with-aside">
+        <aside class="tool-aside">
+          <div class="input-row"><label>起始值</label><input type="number" id="cs-principal" value="100" min="1" /></div>
+          <div class="slider-row" id="cs-rate-row" data-min="-2" data-max="2" data-step="0.05" data-unit="%" data-label="每日变化率"></div>
+          <div class="slider-row" id="cs-years-row" data-min="1" data-max="30" data-step="1" data-unit=" 年" data-label="时间跨度"></div>
+          <div class="slider-row" id="cs-int-row" data-min="0" data-max="365" data-step="5" data-unit=" 天" data-label="中断天数"></div>
+        </aside>
+        <div>
+          <div class="stats cols-3" id="cs-stats"></div>
+          <div class="chart-box" style="margin-top:1.25rem;">
+            <svg id="cs-chart" viewBox="0 0 600 320" preserveAspectRatio="xMidYMid meet"></svg>
+            <div class="legend" id="cs-legend"></div>
+          </div>
+          <div id="cs-insight" style="margin-top:1.25rem;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Tool: Decision Cost Calculator ===== -->
+  <section class="page" data-page="t-decision-cost">
+    <div class="tool-page">
+      <div class="crumbs" style="margin-bottom:1.5rem;"><a data-nav="m-decision">← 回到所属模块</a></div>
+      <p class="tool-eyebrow">交互式小程序</p>
+      <h1 class="t-h1">决策成本计算器</h1>
+      <p class="desc">判断一个决定值得花多少时间想 — 区分 Type 1 / Type 2 决策。</p>
+      <p class="aha">目标洞察 · 大部分人对小事过度纠结,对大事草率决定。</p>
+
+      <div class="tool-grid split">
+        <div style="display:flex; flex-direction:column; gap:2rem;">
+          <div>
+            <h3 class="t-h3">这个决定可以撤回吗?</h3>
+            <p class="t-meta" style="margin:0.25rem 0 0.75rem;">Bezos 双向门思维:可逆 = Type 2,不可逆 = Type 1。</p>
+            <div class="segmented" id="dc-rev"></div>
+          </div>
+          <div>
+            <h3 class="t-h3">这个决定影响多久?</h3>
+            <p class="t-meta" style="margin:0.25rem 0 0.75rem;">影响越长,值得的投入时间越多。</p>
+            <div class="segmented" id="dc-dur"></div>
+          </div>
+          <div>
+            <h3 class="t-h3">影响多少人?</h3>
+            <p class="t-meta" style="margin:0.25rem 0 0.75rem;">涉及他人时,需要考虑他们的输入与同意。</p>
+            <div class="segmented" id="dc-scope"></div>
+          </div>
+        </div>
+        <div id="dc-result"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Tool: Opportunity Cost Comparator ===== -->
+  <section class="page" data-page="t-opportunity-cost">
+    <div class="tool-page">
+      <div class="crumbs" style="margin-bottom:1.5rem;"><a data-nav="m-choice">← 回到所属模块</a></div>
+      <p class="tool-eyebrow">交互式小程序</p>
+      <h1 class="t-h1">机会成本对比器</h1>
+      <p class="desc">把'看不见的成本'可视化 — 你不是在放松 1 小时。</p>
+      <p class="aha">目标洞察 · 机会成本不是另一选项的当下价值,是另一选项复利后的价值。</p>
+
+      <div class="tool-grid with-aside">
+        <aside class="tool-aside">
+          <div class="slider-row" id="oc-hours-row" data-min="0.5" data-max="4" data-step="0.5" data-unit=" 小时" data-label="每天投入时长"></div>
+          <div class="input-row"><label>你正在选 (A)</label><select id="oc-current"></select></div>
+          <div class="input-row"><label>你放弃了 (B)</label><select id="oc-alt"></select></div>
+          <div class="slider-row" id="oc-years-row" data-min="1" data-max="20" data-step="1" data-unit=" 年" data-label="时间跨度"></div>
+        </aside>
+        <div>
+          <div class="stats" id="oc-stats"></div>
+          <div class="chart-box" style="margin-top:1.25rem;">
+            <svg id="oc-chart" viewBox="0 0 600 240" preserveAspectRatio="xMidYMid meet"></svg>
+          </div>
+          <div id="oc-insight" style="margin-top:1.25rem;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Tool: Bias Self-test ===== -->
+  <section class="page" data-page="t-bias-test">
+    <div class="tool-page">
+      <div class="crumbs" style="margin-bottom:1.5rem;"><a data-nav="m-cognition">← 回到所属模块</a></div>
+      <p class="tool-eyebrow">交互式小程序</p>
+      <h1 class="t-h1">偏差自检测试</h1>
+      <p class="desc">用经典心理学题目让你亲身体验自己的认知偏差。</p>
+      <p class="aha">目标洞察 · 你以为自己理性,其实不是。</p>
+      <div id="bias-app" style="margin-top:3rem;"></div>
+    </div>
+  </section>
+
+  <!-- ===== Tool: Life Choice Simulator ===== -->
+  <section class="page" data-page="t-life-choice">
+    <div class="tool-page">
+      <div class="crumbs" style="margin-bottom:1.5rem;"><a data-nav="m-choice">← 回到所属模块</a></div>
+      <p class="tool-eyebrow">交互式小程序</p>
+      <h1 class="t-h1">人生选择模拟器</h1>
+      <p class="desc">在 100 个平行宇宙中看 A / B 两条路径的分布,而非单点。</p>
+      <p class="aha">目标洞察 · 决策质量,与单次结果之间,横亘着运气。</p>
+
+      <div class="tool-grid with-aside">
+        <aside class="tool-aside">
+          <div class="slider-row" id="lc-years-row" data-min="1" data-max="20" data-step="1" data-unit=" 年" data-label="时间跨度"></div>
+          <div style="border-top:1px solid var(--border); padding-top:1rem;">
+            <h4 style="color:var(--data-1); margin-bottom:0.75rem; font-size:1rem;">选项 A · 高风险路径</h4>
+            <div class="slider-row" id="lc-aMean-row" data-min="-10" data-max="50" data-step="1" data-unit="%" data-label="预期年回报"></div>
+            <div class="slider-row" id="lc-aVol-row" data-min="0" data-max="50" data-step="1" data-unit="%" data-label="波动率" style="margin-top:0.75rem;"></div>
+            <div class="slider-row" id="lc-aRuin-row" data-min="0" data-max="20" data-step="1" data-unit="%" data-label="毁灭性风险" style="margin-top:0.75rem;"></div>
+          </div>
+          <div style="border-top:1px solid var(--border); padding-top:1rem;">
+            <h4 style="color:var(--data-2); margin-bottom:0.75rem; font-size:1rem;">选项 B · 稳健路径</h4>
+            <div class="slider-row" id="lc-bMean-row" data-min="-10" data-max="50" data-step="1" data-unit="%" data-label="预期年回报"></div>
+            <div class="slider-row" id="lc-bVol-row" data-min="0" data-max="50" data-step="1" data-unit="%" data-label="波动率" style="margin-top:0.75rem;"></div>
+            <div class="slider-row" id="lc-bRuin-row" data-min="0" data-max="20" data-step="1" data-unit="%" data-label="毁灭性风险" style="margin-top:0.75rem;"></div>
+          </div>
+          <button class="btn btn-secondary" id="lc-reroll">重新运行 100 次模拟</button>
+        </aside>
+        <div>
+          <div class="stats" id="lc-stats"></div>
+          <div class="chart-box" style="margin-top:1.25rem;">
+            <p class="t-meta" style="margin-bottom:0.75rem;">100 次平行宇宙模拟,初始值 = 100</p>
+            <svg id="lc-chart" viewBox="0 0 600 360" preserveAspectRatio="xMidYMid meet"></svg>
+          </div>
+          <div id="lc-insight" style="margin-top:1.25rem;"></div>
+          <div class="callout callout-warn" style="margin-top:1.25rem;"><div class="callout-label">免责声明</div>本模拟器仅用于教育目的,不构成投资、理财或其他专业建议。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Tool: Long-term Feedback ===== -->
+  <section class="page" data-page="t-long-term-feedback">
+    <div class="tool-page">
+      <div class="crumbs" style="margin-bottom:1.5rem;"><a data-nav="m-long-term">← 回到所属模块</a></div>
+      <p class="tool-eyebrow">交互式小程序</p>
+      <h1 class="t-h1">长期反馈曲线</h1>
+      <p class="desc">揭示'大多数有价值的事,反馈都是延迟的'。</p>
+      <p class="aha">目标洞察 · 努力曲线与成果曲线之间,藏着所有放弃。</p>
+
+      <div class="tool-grid with-aside">
+        <aside class="tool-aside">
+          <div class="input-row"><label>活动</label><select id="lt-activity"></select></div>
+          <div class="slider-row" id="lt-hours-row" data-min="0.25" data-max="3" data-step="0.25" data-unit=" 小时" data-label="每天投入"></div>
+          <div class="card" style="font-size:0.8125rem;">
+            <p style="font-weight:600; color:var(--text-primary); margin-bottom:0.5rem;">两条曲线的含义</p>
+            <p style="margin-bottom:0.375rem;"><span style="display:inline-block; width:14px; height:2px; background:var(--data-1); vertical-align:middle; margin-right:6px;"></span><strong>主观感受</strong>: 你"感受到"的进步</p>
+            <p><span style="display:inline-block; width:14px; height:2px; background:var(--data-2); vertical-align:middle; margin-right:6px;"></span><strong>客观成果</strong>: 你"实际"的水平</p>
+          </div>
+        </aside>
+        <div>
+          <div class="chart-box">
+            <p class="t-meta" style="margin-bottom:0.5rem;">5 年时间窗口</p>
+            <p class="t-meta" style="margin-bottom:1rem; font-style:italic;">红色虚线标记的是常见"放弃高发期"</p>
+            <svg id="lt-chart" viewBox="0 0 600 360" preserveAspectRatio="xMidYMid meet"></svg>
+            <div class="legend" id="lt-legend"></div>
+          </div>
+          <div class="stats" id="lt-stats" style="margin-top:1.25rem;"></div>
+          <div id="lt-insight" style="margin-top:1.25rem;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Tool: Ruin Risk Simulator ===== -->
+  <section class="page" data-page="t-ruin-risk">
+    <div class="tool-page">
+      <div class="crumbs" style="margin-bottom:1.5rem;"><a data-nav="m-risk">← 回到所属模块</a></div>
+      <p class="tool-eyebrow">交互式小程序</p>
+      <h1 class="t-h1">风险毁灭模拟器</h1>
+      <p class="desc">演示哪怕只有 1% 的毁灭风险,长期下来也会让你出局。</p>
+      <p class="aha">目标洞察 · 期望值为正 ≠ 长期生存。</p>
+
+      <div class="tool-grid with-aside">
+        <aside class="tool-aside">
+          <div class="slider-row" id="rr-win-row" data-min="1" data-max="99" data-step="1" data-unit="%" data-label="胜率 (p)"></div>
+          <div class="slider-row" id="rr-odds-row" data-min="0.1" data-max="10" data-step="0.1" data-unit=":1" data-label="盈亏比 (b)"></div>
+          <div class="slider-row" id="rr-rounds-row" data-min="10" data-max="500" data-step="10" data-unit=" 局" data-label="局数"></div>
+          <div>
+            <label class="slider-label" style="margin-bottom:0.5rem; display:block;">仓位策略</label>
+            <div class="segmented" id="rr-strategy"></div>
+          </div>
+          <button class="btn btn-secondary" id="rr-reroll">重新模拟</button>
+        </aside>
+        <div>
+          <div class="stats cols-4" id="rr-stats"></div>
+          <div class="chart-box" style="margin-top:1.25rem;">
+            <p class="t-meta" style="margin-bottom:0.75rem;">100 条路径,初始资金 = 100</p>
+            <svg id="rr-chart" viewBox="0 0 600 360" preserveAspectRatio="xMidYMid meet"></svg>
+          </div>
+          <div id="rr-insight" style="margin-top:1.25rem;"></div>
+          <div class="callout callout-warn" style="margin-top:1.25rem;"><div class="callout-label">免责声明</div>本模拟器仅用于教育目的,不构成投资、理财或其他专业建议。凯利公式假设你能精确知道胜率与盈亏比,在现实中这两个值都是估计。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Tool: Decision Journal ===== -->
+  <section class="page" data-page="t-decision-journal">
+    <div class="tool-page">
+      <div class="crumbs" style="margin-bottom:1.5rem;"><a data-nav="m-feedback">← 回到所属模块</a></div>
+      <p class="tool-eyebrow">交互式小程序</p>
+      <h1 class="t-h1">决策日志练习</h1>
+      <p class="desc">记录一次真实决策,3 个月后回看,让结果偏差无所遁形。</p>
+      <p class="aha">目标洞察 · 你的判断,不是事后归因里那么准。</p>
+
+      <div class="tool-grid split" style="margin-top:2rem;">
+        <div class="dj-form">
+          <h2 class="t-h2">写一份决策日志</h2>
+          <div class="input-row"><label>① 你正在做的决定是什么?</label><textarea id="dj-decision" rows="2" placeholder="一句话写清:你正在决定什么、有哪几个选项..."></textarea></div>
+          <div class="input-row"><label>② 你预测最可能的结果?</label><textarea id="dj-outcome" rows="2" placeholder="例:3 个月内拿到第二轮融资..."></textarea></div>
+          <div class="slider-row" id="dj-prob-row" data-min="5" data-max="95" data-step="5" data-unit="%" data-label="③ 你赋予这个预测多少概率?"></div>
+          <div class="input-row"><label>④ 你的依据是什么?</label><textarea id="dj-reasoning" rows="3" placeholder="2-3 个事实或推理..."></textarea></div>
+          <div class="input-row"><label>⑤ 你不知道什么?</label><textarea id="dj-unknowns" rows="2" placeholder="哪些信息是关键但未知的?..."></textarea></div>
+          <button class="btn btn-primary" id="dj-submit">保存到我的清单 (3 个月后回看)</button>
+          <div id="dj-msg" hidden></div>
+        </div>
+        <div>
+          <h2 class="t-h2">已记录 <span class="text-accent" id="dj-count">0</span> 份</h2>
+          <div id="dj-list" style="margin-top:1rem;"></div>
+          <div class="callout callout-info" style="margin-top:1rem;"><div class="callout-label">提示</div><strong>3 个月后,请回到这里。</strong>看看实际结果与你当时预测的差距 — 你会发现,自己的判断远没有事后回忆里那么准。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Library page -->
+  <section class="page" data-page="library">
+    <div class="module-header">
+      <h1 class="t-h1">延伸阅读</h1>
+      <p class="hook">精选资源,覆盖经典书籍、原始论文、关键演讲与持续更新的站点。每一条都标注了所属维度与一句价值描述,而非简单堆砌书单。</p>
+    </div>
+    <div class="lib-filters" id="libFilters"></div>
+    <p class="t-meta" style="margin-bottom:1rem;" id="libCount"></p>
+    <div id="libList"></div>
+  </section>
+
+  <!-- Thinkers list -->
+  <section class="page" data-page="thinkers">
+    <div class="module-header">
+      <h1 class="t-h1">思想家</h1>
+      <p class="hook">12 位塑造了"人生算法"概念体系的思想家,横跨 18 世纪到 21 世纪,覆盖心理学、行为经济学、决策科学、投资、概率论。</p>
+    </div>
+    <div class="thinkers-grid" id="thinkersGrid"></div>
+  </section>
+
+  <!-- Thinker detail (single, dynamically populated) -->
+  <section class="page" data-page="thinker-detail">
+    <div id="thinkerDetail"></div>
+  </section>
+
+  <!-- My list -->
+  <section class="page" data-page="my">
+    <div class="module-header">
+      <h1 class="t-h1">我的清单</h1>
+      <p class="hook">所有数据仅存储在你这台浏览器的本地。换设备 / 清缓存会丢失,请定期导出 JSON 作为备份。</p>
+    </div>
+    <div class="my-toolbar" id="myToolbar"></div>
+    <div id="myContent"></div>
+  </section>
+
+  <!-- About -->
+  <section class="page" data-page="about">
+    <div class="module-header">
+      <h1 class="t-h1">关于本网页</h1>
+    </div>
+    <div class="prose" style="padding:2rem 0;">
+      <p class="lede">这是一个让普通人从"听过人生算法"升级到"会用人生算法"的交互式学习产品。</p>
+      <p>市面上的"人生算法"内容大都停留在"概念介绍"层面 — 听完很爽,合上书什么也带不走。本网页的所有设计,都试图回答一个问题:<strong>能否让一个抽象概念,变成你能'亲手验证'的东西?</strong></p>
+      <h2 class="t-h2" style="margin-top:2rem;">本网页与"鸡汤"有什么不同</h2>
+      <ul>
+        <li>不靠故事,靠概念框架与跨学科证据</li>
+        <li>每个观点可被反例修正,不"事后归因"</li>
+        <li>关注"决策质量",不关注"成功秘籍"</li>
+        <li>每个抽象概念都配一个交互式模拟器</li>
+        <li>所有用户数据本地存储,不上传服务器</li>
+      </ul>
+      <h2 class="t-h2" style="margin-top:2rem;">致谢</h2>
+      <p>中文语境下"人生算法"概念的系统化表达,主要受到老喻 (喻颖正) 同名作品的启发。本网页为独立解读,不直接引用其原文。</p>
+      <h2 class="t-h2" style="margin-top:2rem;">许可</h2>
+      <ul>
+        <li>代码: MIT License</li>
+        <li>原创内容: CC BY-NC-SA 4.0</li>
+        <li>第三方引用: 遵循"合理使用"原则</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h4>学习路径</h4>
+        <ul>
+          <li><a data-nav="m-cognition">从头开始</a></li>
+          <li><a data-nav="my">我的清单</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>资源</h4>
+        <ul>
+          <li><a data-nav="library">延伸阅读</a></li>
+          <li><a data-nav="thinkers">思想家</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>关于</h4>
+        <ul>
+          <li><a data-nav="about">本网页是什么</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>许可</h4>
+        <ul>
+          <li>代码: MIT</li>
+          <li>内容: CC BY-NC-SA 4.0</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>中文语境下"人生算法"概念的系统化表达,主要受到老喻 (喻颖正) 同名作品的启发。本网页为独立解读,不直接引用其原文。</p>
+      <p>本网页所有用户数据仅存储于你的浏览器本地 (localStorage),不上传至任何服务器。</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+'use strict';
+
+/* ============================================================
+   DATA
+============================================================ */
+const MODULES = [
+  { slug: 'cognition', num: 1, title: '认知', en: 'Cognition', hook: '你眼中的世界,决定你看到什么。', q: '你做决策时,在多大程度上是被偏差驱动的?', dur: '10 分钟', level: '基础', icon: '👁' },
+  { slug: 'decision', num: 2, title: '决策', en: 'Decision', hook: '在不确定中行动的方法论。', q: '这件事值得你花多少时间想清楚?', dur: '12 分钟', level: '基础', icon: '⚖' },
+  { slug: 'compounding', num: 3, title: '复利', en: 'Compounding', hook: '时间的魔法,与时间的陷阱。', q: '你正走在哪一条复利曲线上?', dur: '10 分钟', level: '基础', icon: '↗' },
+  { slug: 'choice', num: 4, title: '选择', en: 'Choice', hook: '你不是在选 A,你在放弃所有的非 A。', q: '你正在选择的真实代价是什么?', dur: '12 分钟', level: '进阶', icon: '⚡' },
+  { slug: 'feedback', num: 5, title: '反馈', en: 'Feedback', hook: '好结果未必来自好决策。', q: "你在区分'决策质量'与'运气'吗?", dur: '10 分钟', level: '进阶', icon: '↺' },
+  { slug: 'long-term', num: 6, title: '长期主义', en: 'Long-term', hook: '慢就是快,反过来也成立。', q: '你在哪一段曲线上,正想要放弃?', dur: '10 分钟', level: '进阶', icon: '∞' },
+  { slug: 'risk', num: 7, title: '风险', en: 'Risk', hook: '不要在能赢的游戏里出局。', q: "你在区分'波动'与'毁灭'吗?", dur: '12 分钟', level: '高级', icon: '△' },
+];
+
+const PATHS = [
+  { q: '我现在面临一个重大选择', mods: ['decision', 'choice', 'risk'] },
+  { q: '我感觉自己每天忙但没成长', mods: ['compounding', 'long-term', 'feedback'] },
+  { q: '我想理解自己为什么常做错决定', mods: ['cognition', 'feedback'] },
+  { q: '我想搭建自己的决策框架', mods: ['decision', 'feedback'] },
+  { q: '我刚刚做了一个错误决定', mods: ['feedback', 'risk'] },
+];
+
+const LIBRARY = [
+  { id: 'thinking-fast-slow', title: 'Thinking, Fast and Slow', author: 'Daniel Kahneman', type: 'book', year: 2011, modules: ['cognition', 'feedback'], tags: ['心理学', '双系统', '偏差'], hook: '双系统理论的源头。读完这本,你看自己的决策方式会永久改变。', dur: '~500 页', lang: 'en' },
+  { id: 'poor-charlies-almanack', title: '穷查理宝典', author: 'Peter Kaufman 编', type: 'book', year: 2005, modules: ['cognition', 'decision'], tags: ['多元思维模型', '芒格'], hook: '芒格的演讲与思想合集。多元思维模型的最佳入门。', dur: '~600 页', lang: 'zh' },
+  { id: 'principles', title: 'Principles', author: 'Ray Dalio', type: 'book', year: 2017, modules: ['decision', 'feedback'], tags: ['决策机器', '原则'], hook: '把决策做成"机器"的系统化方法,基于他真实的失败与重建经验。', dur: '~600 页', lang: 'en' },
+  { id: 'antifragile', title: 'Antifragile', author: 'Nassim Taleb', type: 'book', year: 2012, modules: ['risk', 'long-term'], tags: ['反脆弱', '波动', 'Lindy'], hook: '区分"波动"与"毁灭",理解为什么有些系统从压力中获益。', dur: '~500 页', lang: 'en' },
+  { id: 'black-swan', title: '黑天鹅', author: 'Nassim Taleb', type: 'book', year: 2007, modules: ['risk'], tags: ['极端事件', '归因'], hook: '为什么我们事后总能解释一切,事前一无所知。', dur: '~400 页', lang: 'zh' },
+  { id: 'naval-almanack', title: '纳瓦尔宝典', author: 'Eric Jorgenson 编', type: 'book', year: 2020, modules: ['compounding', 'long-term'], tags: ['杠杆', '特定知识', '复利'], hook: '纳瓦尔的 Twitter 与播客精华。三种杠杆 (代码、媒体、资本) 的最清晰阐述。', dur: '~250 页', lang: 'en' },
+  { id: 'thinking-in-bets', title: 'Thinking in Bets', author: 'Annie Duke', type: 'book', year: 2018, modules: ['decision', 'feedback'], tags: ['扑克', '决策日志'], hook: '前职业扑克玩家教你区分决策质量与结果质量。', dur: '~250 页', lang: 'en' },
+  { id: 'atomic-habits', title: '原子习惯', author: 'James Clear', type: 'book', year: 2018, modules: ['compounding'], tags: ['微小复利', '行为改变'], hook: '复利思维在习惯养成上的实操手册。', dur: '~300 页', lang: 'zh' },
+  { id: 'snowball', title: '滚雪球', author: 'Alice Schroeder', type: 'book', year: 2008, modules: ['compounding', 'long-term'], tags: ['巴菲特', '复利'], hook: '巴菲特唯一授权传记。他如何把复利变成性格,而不只是财务策略。', dur: '~900 页', lang: 'zh' },
+  { id: 'psychology-of-money', title: '金钱心理学', author: 'Morgan Housel', type: 'book', year: 2020, modules: ['compounding', 'long-term'], tags: ['复利', '时间'], hook: '用故事讲透为什么"行为"比"知识"更影响财富积累。', dur: '~250 页', lang: 'zh' },
+  { id: 'most-important-thing', title: 'The Most Important Thing', author: 'Howard Marks', type: 'book', year: 2011, modules: ['risk', 'decision'], tags: ['风险', '第二层思维'], hook: 'Oaktree 创始人的备忘录精华。"风险"与"不确定性"为何是两件事。', dur: '~200 页', lang: 'en' },
+  { id: 'paradox-of-choice', title: '选择的悖论', author: 'Barry Schwartz', type: 'book', year: 2004, modules: ['choice'], tags: ['选择疲劳', '幸福感'], hook: '选项越多,人越焦虑、越不容易满足。反直觉的现代生活困境。', dur: '~270 页', lang: 'zh' },
+  { id: 'long-game', title: 'The Long Game', author: 'Dorie Clark', type: 'book', year: 2021, modules: ['long-term'], tags: ['长期主义'], hook: '把长期主义从口号变成可操作的方法论。', dur: '~250 页', lang: 'en' },
+  { id: 'munger-usc', title: 'USC 法学院演讲 (1994)', author: 'Charlie Munger', type: 'talk', year: 1994, modules: ['cognition', 'decision'], tags: ['多元模型'], hook: '芒格阐述"多元思维模型"的经典演讲。如果只看一个芒格演讲,就是它。', dur: '~50 分钟', lang: 'en' },
+  { id: 'bezos-1997', title: 'Amazon 1997 致股东信', author: 'Jeff Bezos', type: 'article', year: 1997, modules: ['decision'], tags: ['Type 1/2', '长期主义'], hook: '提出"双向门"决策框架的原始文献。', dur: '~10 分钟', lang: 'en' },
+  { id: 'naval-rich', title: 'How to Get Rich (without getting lucky)', author: 'Naval Ravikant', type: 'article', year: 2018, modules: ['compounding'], tags: ['杠杆', '特定知识'], hook: '纳瓦尔在 Twitter 上发布的 40 条 Tweet,后来变成《纳瓦尔宝典》的核心。', dur: '~20 分钟', lang: 'en' },
+  { id: 'fs-blog', title: 'Farnam Street', author: 'Shane Parrish', type: 'site', modules: ['cognition', 'decision', 'feedback'], tags: ['心智模型', '决策'], hook: '心智模型的英文百科。决策日志模板可以从这里下载。', url: 'https://fs.blog', lang: 'en' },
+  { id: 'lesswrong', title: 'LessWrong', author: 'Rationalist Community', type: 'site', modules: ['cognition'], tags: ['理性主义', '贝叶斯'], hook: '理性主义社区,贝叶斯思维与认知偏差的深度讨论。', url: 'https://lesswrong.com', lang: 'en' },
+  { id: 'wait-but-why', title: 'Wait But Why', author: 'Tim Urban', type: 'site', modules: ['long-term'], tags: ['长文', '插画'], hook: '长文 + 插画讲透复杂概念。', url: 'https://waitbutwhy.com', lang: 'en' },
+  { id: 'kelly-criterion', title: 'A New Interpretation of Information Rate', author: 'John Kelly', type: 'paper', year: 1956, modules: ['risk'], tags: ['凯利公式'], hook: '凯利公式的原始论文。', dur: '~10 页', lang: 'en' },
+  { id: 'kahneman-tversky-1974', title: 'Judgment under Uncertainty: Heuristics and Biases', author: 'Kahneman & Tversky', type: 'paper', year: 1974, modules: ['cognition'], tags: ['启发式', '偏差'], hook: '改写"理性人"假设的奠基论文。', dur: '~9 页', lang: 'en' },
+];
+
+const TYPE_LABELS = { book: '书籍', article: '文章 / 信件', talk: '演讲', site: '站点', paper: '论文' };
+
+const THINKERS = [
+  { slug: 'munger', name: '查理·芒格', en: 'Charlie Munger', initials: '芒', role: '伯克希尔哈撒韦副主席 (1924–2023)', era: '20–21 世纪', mods: ['cognition', 'decision'], oneLine: '把所有学科的核心思想织成一张网,这是芒格的方法论。', ideas: ['多元思维模型 (Multidisciplinary Mental Models)', '逆向思维:总是反过来想', '能力圈:知道自己不知道什么', '诉诸利益,而非诉诸理性'], works: ['《穷查理宝典》', 'USC 法学院演讲 1994', '哈佛毕业演讲 1986'], quote: '如果你想说服别人,诉诸利益,而非诉诸理性。', source: '《穷查理宝典》', accent: '#C2410C' },
+  { slug: 'naval', name: '纳瓦尔·拉维肯', en: 'Naval Ravikant', initials: 'NR', role: 'AngelList 创始人,投资者', era: '21 世纪', mods: ['compounding', 'long-term'], oneLine: '把"如何致富"拆解为可教学的公式 — 特定知识 × 杠杆。', ideas: ['三种杠杆:资本、人力、代码与媒体 (零边际成本)', '特定知识 (Specific Knowledge)', '玩长期游戏 (Play Long-term Games)', '复利不仅是数学,而是世界观'], works: ['《纳瓦尔宝典》', 'How to Get Rich (Twitter Threads)', 'Naval Podcast'], quote: '复利,不仅是数学概念,而是一切因果。', source: '《纳瓦尔宝典》', accent: '#0F766E' },
+  { slug: 'buffett', name: '沃伦·巴菲特', en: 'Warren Buffett', initials: 'WB', role: '伯克希尔哈撒韦董事长', era: '20–21 世纪', mods: ['long-term', 'risk'], oneLine: '他的财富 99% 在 60 岁后获得。复利的真实主角。', ideas: ['能力圈 (Circle of Competence)', '安全边际 (Margin of Safety)', '长期持有,几乎从不交易', '第一原则:不亏钱'], works: ['伯克希尔致股东信 (1965-至今)', '《滚雪球》(传记)'], quote: '股市是一个把钱从没有耐心的人手里转移到有耐心的人手里的装置。', source: '多次股东大会', accent: '#7C3AED' },
+  { slug: 'dalio', name: 'Ray Dalio', en: 'Ray Dalio', initials: 'RD', role: 'Bridgewater 创始人', era: '20–21 世纪', mods: ['decision', 'feedback'], oneLine: '把决策做成"机器"— 一份关于自我反思的极致工程化探索。', ideas: ['痛苦 + 反思 = 进步', '原则:把每个失败抽象成可复用的规则', '极度透明 (Radical Transparency)', '决策前列出可信度加权'], works: ['《Principles》', '《Big Debt Crises》'], quote: '痛苦 + 反思 = 进步。痛苦本身不会让你进步,只有反思会。', source: '《Principles》', accent: '#D97706' },
+  { slug: 'kahneman', name: 'Daniel Kahneman', en: 'Daniel Kahneman', initials: 'DK', role: '诺贝尔经济学奖得主 (1934–2024)', era: '20–21 世纪', mods: ['cognition', 'feedback'], oneLine: '他证明了"理性人"是个传说 — 并据此改写了经济学。', ideas: ['系统 1 (快、自动) vs 系统 2 (慢、刻意)', '前景理论 (Prospect Theory)', '锚定效应、可得性偏差、损失厌恶', '做重大判断后等 24 小时再行动'], works: ['《思考,快与慢》', '1974 启发式与偏差论文', '《Noise》'], quote: '我们对自己的判断,远不如我们以为的那样可靠。', source: '《思考,快与慢》', accent: '#0F766E' },
+  { slug: 'taleb', name: 'Nassim Taleb', en: 'Nassim Nicholas Taleb', initials: 'NT', role: '概率论与风险研究者', era: '21 世纪', mods: ['risk', 'long-term'], oneLine: '区分"波动"与"毁灭",是他写了 5 本书的核心议题。', ideas: ['黑天鹅:罕见、极端、事后被解释', '反脆弱:从波动中获益的系统', 'Lindy 效应:思想越老越可能再活久', 'Skin in the Game'], works: ['《黑天鹅》', '《反脆弱》', '《Skin in the Game》'], quote: '不要丢失什么是无法承担丢失的。', source: '《反脆弱》', accent: '#DC2626' },
+  { slug: 'bezos', name: 'Jeff Bezos', en: 'Jeff Bezos', initials: 'JB', role: 'Amazon 创始人', era: '20–21 世纪', mods: ['decision'], oneLine: '用 Type 1/Type 2 决策框架,改变了一代企业的决策速度。', ideas: ['Type 1 (单向门) vs Type 2 (双向门) 决策', '70% 信息就行动', 'Day 1 思维', '最小遗憾原则'], works: ['Amazon 1997 致股东信', 'Amazon 2015 致股东信'], quote: '大多数决策都应该在你拥有 70% 你希望拥有的信息时做出。', source: 'Amazon 致股东信', accent: '#A78BFA' },
+  { slug: 'marks', name: 'Howard Marks', en: 'Howard Marks', initials: 'HM', role: 'Oaktree Capital 联合创始人', era: '20–21 世纪', mods: ['risk', 'decision'], oneLine: '把"风险"与"不确定性"分清楚,是他写备忘录写了 30 年的事。', ideas: ['第二层思维 (Second-level Thinking)', '风险不是波动,是亏损概率', '周期不可避免,但可以利用'], works: ['《The Most Important Thing》', 'Oaktree Memos (1990-至今)'], quote: '经验,是你没得到你想要的之后,得到的东西。', source: 'Oaktree Memo', accent: '#0F766E' },
+  { slug: 'duke', name: 'Annie Duke', en: 'Annie Duke', initials: 'AD', role: '前世界扑克冠军,决策科学作者', era: '21 世纪', mods: ['decision', 'feedback'], oneLine: '她用 20 年赌牌,然后写出最实操的决策日志教材。', ideas: ['区分决策质量与结果质量', '"结果偏差"是反馈训练的最大敌人', '决策日志 4 要素', '"quitting"也是决策技能'], works: ['《Thinking in Bets》', '《How to Decide》', '《Quit》'], quote: '我们用结果评判决策,但糟糕决策有时也带来好结果。', source: '《Thinking in Bets》', accent: '#FB923C' },
+  { slug: 'dweck', name: 'Carol Dweck', en: 'Carol Dweck', initials: 'CD', role: '斯坦福心理学教授', era: '20–21 世纪', mods: ['cognition', 'long-term'], oneLine: '成长型 vs 固定型思维 — 30 年后差距惊人。', ideas: ['成长型思维 (Growth Mindset)', '失败是反馈,不是定义', '称赞"努力"而非"才能"', '能力是可塑的'], works: ['《Mindset》', '数十篇心理学论文'], quote: 'Becoming is better than being.', source: '《Mindset》', accent: '#0F766E' },
+  { slug: 'kaufman', name: 'Peter Kaufman', en: 'Peter Kaufman', initials: 'PK', role: '《穷查理宝典》主编', era: '21 世纪', mods: ['compounding'], oneLine: '他提出"五个 1+x"复利系统 — 比单一复利更强大的视角。', ideas: ['多个 (1+x) 系统并行,产生复合复利', '"事情的本质"思维', '持续学习的纪律'], works: ['《穷查理宝典》(主编)'], quote: 'Three things to do every day: read, learn, and reflect.', source: '采访', accent: '#7C3AED' },
+  { slug: 'franklin', name: '本杰明·富兰克林', en: 'Benjamin Franklin', initials: 'BF', role: '美国开国元勋 (1706–1790)', era: '18 世纪', mods: ['feedback'], oneLine: '现代"决策日志"与"自我审计"思想的源头,比所有人早 200 年。', ideas: ['13 美德每周自我审视', '记录每一项的进展', '时间最值得珍惜的资源'], works: ['《富兰克林自传》'], quote: '你热爱生命吗?那就别浪费时间,因为生命就是由时间组成的。', source: '《穷理查年鉴》', accent: '#D97706' },
+];
+
+/* ============================================================
+   STATE (localStorage)
+============================================================ */
+const STORAGE_KEY = 'ren-sheng:html:v1';
+const THEME_KEY = 'ren-sheng:theme';
+
+function defaultState() {
+  return {
+    version: 1,
+    completedModules: [],
+    reflections: [],
+    biasResults: null,
+    decisionJournal: [],
+    lastVisitedAt: null,
+  };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultState();
+    const p = JSON.parse(raw);
+    if (p.version !== 1) return defaultState();
+    return Object.assign(defaultState(), p);
+  } catch { return defaultState(); }
+}
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE)); } catch {}
+}
+
+let STATE = loadState();
+const SUBS = new Set();
+function subscribe(fn) { SUBS.add(fn); return () => SUBS.delete(fn); }
+function notify() { saveState(); SUBS.forEach((fn) => fn()); }
+
+const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+
+/* ============================================================
+   THEME
+============================================================ */
+(function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const initial = saved || (prefersDark ? 'dark' : 'light');
+  document.documentElement.dataset.theme = initial;
+  syncThemeIcon();
+})();
+
+function syncThemeIcon() {
+  const t = document.documentElement.dataset.theme;
+  document.getElementById('themeIconLight').hidden = t === 'dark';
+  document.getElementById('themeIconDark').hidden = t !== 'dark';
+}
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const cur = document.documentElement.dataset.theme;
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem(THEME_KEY, next);
+  syncThemeIcon();
+  notify(); // re-render charts to pick up new colors
+});
+
+/* ============================================================
+   NAVIGATION (SPA-like, with hash routing)
+============================================================ */
+function navigate(target) {
+  const pages = document.querySelectorAll('[data-page]');
+  let found = false;
+  pages.forEach((p) => {
+    const isMatch = p.dataset.page === target;
+    p.classList.toggle('active', isMatch);
+    if (isMatch) found = true;
+  });
+  if (!found) {
+    document.querySelector('[data-page="home"]').classList.add('active');
+    target = 'home';
+  }
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  document.getElementById('menuMobile').classList.remove('open');
+  if (location.hash !== '#' + target) history.replaceState(null, '', '#' + target);
+  document.querySelectorAll('[data-nav]').forEach((el) => {
+    el.classList.toggle('active', el.dataset.nav === target);
+  });
+  notify();
+  // Init tools lazily
+  if (target === 't-compound-simulator') CompoundSim.mount();
+  if (target === 't-decision-cost') DecisionCost.mount();
+  if (target === 't-opportunity-cost') OppCost.mount();
+  if (target === 't-bias-test') BiasTest.mount();
+  if (target === 't-life-choice') LifeChoice.mount();
+  if (target === 't-long-term-feedback') LongTermFB.mount();
+  if (target === 't-ruin-risk') RuinRisk.mount();
+  if (target === 't-decision-journal') DecisionJournalUI.mount();
+  if (target === 'library') Library.mount();
+  if (target === 'thinkers') Thinkers.mountList();
+  if (target === 'my') MyList.mount();
+}
+
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-nav]');
+  if (t) {
+    e.preventDefault();
+    navigate(t.dataset.nav);
+  }
+});
+
+document.getElementById('menuToggle').addEventListener('click', () => {
+  document.getElementById('menuMobile').classList.toggle('open');
+});
+
+/* ============================================================
+   HOMEPAGE: module grid + path grid + nav
+============================================================ */
+function renderHome() {
+  // module grid
+  const grid = document.getElementById('moduleGrid');
+  grid.innerHTML = MODULES.map((m) => {
+    const done = STATE.completedModules.includes(m.slug);
+    return `
+      <button class="module-card" data-nav="m-${m.slug}">
+        <div class="module-card-head">
+          <div><span class="module-card-num">${String(m.num).padStart(2, '0')}</span><span class="module-card-icon">${m.icon}</span></div>
+          ${done ? '<span class="module-card-check">✓</span>' : '<span style="color:var(--text-muted);">↗</span>'}
+        </div>
+        <div style="flex:1;">
+          <h3>${m.title}</h3>
+          <p class="hook">${m.hook}</p>
+          <p class="question">${m.q}</p>
+        </div>
+        <div class="module-card-foot"><span>${m.dur}</span><span class="tag-level">${m.level}</span></div>
+      </button>`;
+  }).join('');
+  // path grid
+  const pg = document.getElementById('pathGrid');
+  pg.innerHTML = PATHS.map((p) => `
+    <button class="path-item" data-nav="m-${p.mods[0]}">
+      <div>
+        <p style="font-weight:500; color:var(--text-primary); margin-bottom:0.25rem;">${p.q}</p>
+        <p class="t-meta">推荐路径: ${p.mods.map((s) => MODULES.find((m) => m.slug === s).title).join(' → ')}</p>
+      </div>
+      <span class="arrow">→</span>
+    </button>
+  `).join('');
+}
+
+function renderNavMain() {
+  const nav = document.getElementById('navMain');
+  nav.innerHTML = MODULES.map((m) => `<button class="nav-link" data-nav="m-${m.slug}">${m.title}</button>`).join('');
+  // mobile menu
+  const mobile = document.getElementById('menuMobile');
+  mobile.innerHTML = MODULES.map((m) => `<button class="nav-link" data-nav="m-${m.slug}"><span class="t-meta" style="margin-right:0.5rem;">${String(m.num).padStart(2, '0')}</span>${m.title}</button>`).join('') +
+    '<div style="border-top:1px solid var(--border); margin:8px 0;"></div>' +
+    '<button class="nav-link" data-nav="library">延伸阅读</button>' +
+    '<button class="nav-link" data-nav="thinkers">思想家</button>' +
+    '<button class="nav-link" data-nav="my">我的清单</button>' +
+    '<button class="nav-link" data-nav="about">关于</button>';
+}
+
+function renderProgress() {
+  const ratio = STATE.completedModules.length / MODULES.length;
+  document.getElementById('progressFill').style.width = (ratio * 100) + '%';
+}
+
+function renderModuleNavs() {
+  document.querySelectorAll('.module-nav').forEach((el) => {
+    if (el.children.length > 0) return; // already rendered structure
+    const prev = el.dataset.prev;
+    const next = el.dataset.next;
+    const final = el.dataset.final === 'true';
+    let html = '';
+    if (prev) {
+      const pm = MODULES.find((m) => m.slug === prev.replace('m-', ''));
+      html += `<button class="module-nav-item" data-nav="${prev}"><span style="color:var(--text-muted);">←</span><div><div class="small">上一模块</div><div class="name">${pm.title}</div></div></button>`;
+    } else {
+      html += '<div style="flex:1;"></div>';
+    }
+    if (final) {
+      html += `<button class="module-nav-item next final" data-nav="${next}"><div><div class="small">已学完七个模块</div><div class="name">查看「我的清单」</div></div><span style="color:var(--accent);">→</span></button>`;
+    } else if (next) {
+      const nm = MODULES.find((m) => m.slug === next.replace('m-', ''));
+      html += `<button class="module-nav-item next" data-nav="${next}"><div><div class="small">下一模块</div><div class="name">${nm.title}</div></div><span style="color:var(--text-muted);">→</span></button>`;
+    }
+    el.innerHTML = html;
+  });
+}
+
+/* ============================================================
+   REFLECTIONS + MODULE COMPLETION
+============================================================ */
+function setupReflections() {
+  document.querySelectorAll('[data-reflection]').forEach((el) => {
+    const ta = el.querySelector('textarea');
+    const charCount = el.querySelector('.char-count');
+    const saved = el.querySelector('.reflection-saved');
+    let timer = null;
+    let didSave = false;
+    ta.addEventListener('input', () => {
+      const v = ta.value;
+      charCount.textContent = v.length + ' 字';
+      if (didSave) { didSave = false; saved.hidden = true; }
+      if (v.trim().length < 10) return;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        STATE.reflections.unshift({
+          id: uid(),
+          moduleSlug: el.dataset.module,
+          question: el.dataset.question,
+          answer: v.trim(),
+          createdAt: new Date().toISOString(),
+        });
+        didSave = true;
+        saved.hidden = false;
+        notify();
+      }, 800);
+    });
+  });
+}
+
+function setupModuleCompletion() {
+  document.querySelectorAll('[data-complete-module]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const slug = btn.dataset.completeModule;
+      if (STATE.completedModules.includes(slug)) return;
+      STATE.completedModules.push(slug);
+      STATE.lastVisitedAt = new Date().toISOString();
+      btn.disabled = true;
+      btn.textContent = '✓ 已完成';
+      btn.classList.remove('btn-primary');
+      btn.classList.add('btn-secondary');
+      notify();
+    });
+  });
+}
+
+/* ============================================================
+   SLIDER component (delegated)
+============================================================ */
+function makeSlider(rowEl, value, onChange, format) {
+  const min = parseFloat(rowEl.dataset.min);
+  const max = parseFloat(rowEl.dataset.max);
+  const step = parseFloat(rowEl.dataset.step || '1');
+  const unit = rowEl.dataset.unit || '';
+  const label = rowEl.dataset.label || '';
+  const hint = rowEl.dataset.hint || '';
+  rowEl.innerHTML = `
+    <div class="slider-head"><span class="slider-label">${label}</span><span class="slider-value">${(format ? format(value) : value) + unit}</span></div>
+    <input type="range" class="slider-input" min="${min}" max="${max}" step="${step}" value="${value}">
+    ${hint ? `<p class="slider-hint">${hint}</p>` : ''}
+  `;
+  const input = rowEl.querySelector('input');
+  const valEl = rowEl.querySelector('.slider-value');
+  input.addEventListener('input', () => {
+    const v = parseFloat(input.value);
+    valEl.textContent = (format ? format(v) : v) + unit;
+    onChange(v);
+  });
+  return { setValue(v) { input.value = v; valEl.textContent = (format ? format(v) : v) + unit; } };
+}
+
+function makeSegmented(el, options, value, onChange) {
+  el.innerHTML = options.map((o) => `<button data-v="${o.value}" class="${o.value === value ? 'active' : ''}">${o.label}</button>`).join('');
+  el.querySelectorAll('button').forEach((b) => {
+    b.addEventListener('click', () => {
+      el.querySelectorAll('button').forEach((x) => x.classList.remove('active'));
+      b.classList.add('active');
+      onChange(b.dataset.v);
+    });
+  });
+}
+
+/* ============================================================
+   SVG chart helpers
+============================================================ */
+function getColor(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue('--' + name).trim();
+}
+
+function svgEl(tag, attrs) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+function drawAxis(svg, opt) {
+  const { width, height, padL = 50, padR = 16, padT = 16, padB = 30, xMin, xMax, yMin, yMax, xTicks = 6, yTicks = 5, xFormat = (v) => v, yFormat = (v) => v } = opt;
+  const innerW = width - padL - padR;
+  const innerH = height - padT - padB;
+  // x grid + labels
+  for (let i = 0; i <= xTicks; i++) {
+    const t = i / xTicks;
+    const x = padL + t * innerW;
+    const v = xMin + t * (xMax - xMin);
+    svg.appendChild(svgEl('line', { class: 'grid-line', x1: x, x2: x, y1: padT, y2: height - padB }));
+    const tx = svgEl('text', { class: 'axis-text', x, y: height - padB + 16, 'text-anchor': 'middle' });
+    tx.textContent = xFormat(v);
+    svg.appendChild(tx);
+  }
+  // y grid + labels
+  for (let i = 0; i <= yTicks; i++) {
+    const t = i / yTicks;
+    const y = padT + (1 - t) * innerH;
+    const v = yMin + t * (yMax - yMin);
+    svg.appendChild(svgEl('line', { class: 'grid-line', x1: padL, x2: width - padR, y1: y, y2: y }));
+    const tx = svgEl('text', { class: 'axis-text', x: padL - 8, y: y + 4, 'text-anchor': 'end' });
+    tx.textContent = yFormat(v);
+    svg.appendChild(tx);
+  }
+  return { padL, padR, padT, padB, innerW, innerH,
+    xToPx: (v) => padL + ((v - xMin) / (xMax - xMin)) * innerW,
+    yToPx: (v) => padT + (1 - (v - yMin) / (yMax - yMin)) * innerH };
+}
+
+function clearSvg(svg) { while (svg.firstChild) svg.removeChild(svg.firstChild); }
+
+function fmtNum(n, digits = 2) {
+  if (!isFinite(n)) return '—';
+  if (Math.abs(n) >= 1e9) return (n / 1e9).toFixed(digits) + 'B';
+  if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(digits) + 'M';
+  if (Math.abs(n) >= 1e4) return (n / 1e4).toFixed(digits) + '万';
+  return Math.abs(n) >= 100 ? n.toFixed(0) : n.toFixed(digits);
+}
+
+/* ============================================================
+   TOOL: Compound Simulator
+============================================================ */
+const CompoundSim = {
+  mounted: false,
+  s: { principal: 100, dailyRate: 0.5, years: 10, interrupt: 0 },
+  mount() {
+    if (!this.mounted) {
+      this.sliders = {
+        rate: makeSlider(document.getElementById('cs-rate-row'), this.s.dailyRate, (v) => { this.s.dailyRate = v; this.render(); }, (v) => v.toFixed(2)),
+        years: makeSlider(document.getElementById('cs-years-row'), this.s.years, (v) => { this.s.years = v; this.render(); }, (v) => v.toString()),
+        int: makeSlider(document.getElementById('cs-int-row'), this.s.interrupt, (v) => { this.s.interrupt = v; this.render(); }, (v) => v.toString()),
+      };
+      document.getElementById('cs-principal').addEventListener('input', (e) => { this.s.principal = parseFloat(e.target.value) || 100; this.render(); });
+      this.mounted = true;
+    }
+    this.render();
+  },
+  render() {
+    const { principal, dailyRate, years, interrupt } = this.s;
+    const days = years * 365;
+    const r = dailyRate / 100;
+    const points = [];
+    let intStart = Math.floor(days * 0.4);
+    let intEnd = intStart + interrupt;
+    let intVal = principal;
+    for (let i = 0; i <= 80; i++) {
+      const d = Math.floor((i / 80) * days);
+      const compound = principal * Math.pow(1 + r, d);
+      const linear = principal + (principal * (1 + r * days) - principal) * (d / days);
+      // interrupted: skip growth in [intStart, intEnd]
+      if (interrupt > 0) {
+        const dInt = d <= intStart ? d : (d <= intEnd ? intStart : (d - (intEnd - intStart)));
+        intVal = principal * Math.pow(1 + r, Math.max(0, dInt));
+      }
+      points.push({ d, year: d / 365, compound, linear, interrupted: interrupt > 0 ? intVal : null });
+    }
+    const final = points[points.length - 1].compound;
+    const finalLinear = points[points.length - 1].linear;
+    const ratio = final / principal;
+    const tenX = dailyRate > 0 ? Math.log(10) / Math.log(1 + r) / 365 : null;
+    // stats
+    document.getElementById('cs-stats').innerHTML = `
+      <div class="stat-card"><div class="stat-label">终值</div><div class="stat-value">${fmtNum(final)}</div></div>
+      <div class="stat-card"><div class="stat-label">增长倍数</div><div class="stat-value accent">${ratio.toFixed(2)}x</div></div>
+      <div class="stat-card"><div class="stat-label">到达 10x 所需</div><div class="stat-value">${tenX ? tenX.toFixed(1) + ' 年' : '—'}</div></div>
+    `;
+    // chart
+    const svg = document.getElementById('cs-chart');
+    clearSvg(svg);
+    const allYs = points.flatMap((p) => [p.compound, p.linear].concat(p.interrupted != null ? [p.interrupted] : []));
+    const yMax = Math.max(...allYs);
+    const yMin = Math.min(0, ...allYs);
+    const A = drawAxis(svg, { width: 600, height: 320, xMin: 0, xMax: years, yMin, yMax: yMax * 1.05, xFormat: (v) => v.toFixed(0) + 'y', yFormat: (v) => fmtNum(v, 0) });
+    const path = (key, color, dash = null) => {
+      let d = '';
+      points.forEach((p, i) => {
+        const v = p[key];
+        if (v == null) return;
+        const x = A.xToPx(p.year), y = A.yToPx(v);
+        d += (i === 0 ? 'M' : 'L') + x + ' ' + y;
+      });
+      const el = svgEl('path', { d, fill: 'none', stroke: color, 'stroke-width': 2.5 });
+      if (dash) el.setAttribute('stroke-dasharray', dash);
+      svg.appendChild(el);
+    };
+    path('linear', getColor('data-2'), '5 5');
+    path('compound', getColor('data-1'));
+    if (interrupt > 0) path('interrupted', getColor('warn'), '3 3');
+    document.getElementById('cs-legend').innerHTML = `
+      <span class="legend-item"><span class="legend-swatch" style="background:${getColor('data-2')};"></span>线性增长 (你以为的)</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:${getColor('data-1')};"></span>复利 (实际)</span>
+      ${interrupt > 0 ? `<span class="legend-item"><span class="legend-swatch" style="background:${getColor('warn')};"></span>中断 ${interrupt} 天</span>` : ''}
+    `;
+    // insight
+    let insight;
+    if (dailyRate < 0) {
+      insight = `每天 ${dailyRate.toFixed(2)}% 的"负复利"在 ${years} 年后,把 ${principal} 缩到 ${fmtNum(final)} — 比线性恶化恐怖得多。这就是坏习惯的真实代价。`;
+    } else if (dailyRate < 0.1) {
+      insight = `${dailyRate.toFixed(2)}% 的微小积累,${years} 年后达到 ${ratio.toFixed(2)}x。曲线在最后阶段才显著上扬 — 这正是大多数人放弃的时间点之后。`;
+    } else {
+      insight = `${dailyRate.toFixed(2)}% 在 ${years} 年后达到 ${ratio.toFixed(2)}x。注意线性预期 (${(finalLinear / principal).toFixed(2)}x) 与真实复利的差距 — 直觉欺骗了大多数人。`;
+    }
+    let html = `<div class="callout callout-insight"><div class="callout-label">洞察</div>${insight}</div>`;
+    if (interrupt > 0) {
+      const intFinal = points[points.length - 1].interrupted;
+      const lostPct = ((final - intFinal) / final * 100).toFixed(1);
+      html += `<div class="callout callout-warn"><div class="callout-label">中断的代价</div>一次 ${interrupt} 天的中断,在 ${years} 年后让你比"持续投入"少了约 ${lostPct}%。复利不能暂停 — 中断的真实代价是"未来的复利",而不是中断那几天本身。</div>`;
+    }
+    document.getElementById('cs-insight').innerHTML = html;
+  }
+};
+
+/* ============================================================
+   TOOL: Decision Cost
+============================================================ */
+const DecisionCost = {
+  mounted: false,
+  s: { rev: 'yes', dur: 'month', scope: 'self' },
+  mount() {
+    if (!this.mounted) {
+      makeSegmented(document.getElementById('dc-rev'), [
+        { value: 'yes', label: '可以,损失不大' }, { value: 'no', label: '不可逆 / 代价巨大' }
+      ], this.s.rev, (v) => { this.s.rev = v; this.render(); });
+      makeSegmented(document.getElementById('dc-dur'), [
+        { value: 'week', label: '一周内' }, { value: 'month', label: '一个月' }, { value: 'year', label: '一年' }, { value: 'lifetime', label: '一生' }
+      ], this.s.dur, (v) => { this.s.dur = v; this.render(); });
+      makeSegmented(document.getElementById('dc-scope'), [
+        { value: 'self', label: '仅自己' }, { value: 'family', label: '家人' }, { value: 'team', label: '团队' }, { value: 'company', label: '公司' }
+      ], this.s.scope, (v) => { this.s.scope = v; this.render(); });
+      this.mounted = true;
+    }
+    this.render();
+  },
+  render() {
+    const { rev, dur, scope } = this.s;
+    const isType1 = rev === 'no' || dur === 'lifetime';
+    const score = (rev === 'no' ? 3 : 0) +
+      ({ week: 0, month: 1, year: 2, lifetime: 4 }[dur]) +
+      ({ self: 0, family: 1, team: 2, company: 3 }[scope]);
+    let timeBudget, advice, warn = false;
+    if (score <= 2) { timeBudget = '5–30 分钟'; advice = "这是一个典型的 Type 2 决策 (双向门)。错了可以回头,等于 Type 1 标准对待它,你在浪费决策预算。"; }
+    else if (score <= 5) { timeBudget = '1–3 天'; advice = "中等可逆性,适度调研后即可拍板。比起'再多想一天',更应'先做小步,看反馈再调整'。"; }
+    else if (score <= 8) { timeBudget = '1–2 周'; advice = '重要决策,值得做正式调研、咨询 2-3 位有经验者、写下决策日志。'; }
+    else { timeBudget = '1 个月以上 + 多人决策'; advice = '这是 Type 1 决策 (单向门)。投入时间是必要成本,慢比错重要。'; warn = true; }
+    const overthinking = !isType1 && dur === 'week' && scope === 'self';
+    const typeLabel = isType1 ? 'Type 1 · 单向门' : 'Type 2 · 双向门';
+    const typeColor = isType1 ? 'var(--warn)' : 'var(--data-1)';
+    document.getElementById('dc-result').innerHTML = `
+      <div style="border:2px solid color-mix(in srgb, var(--accent) 20%, transparent); background:color-mix(in srgb, var(--accent) 5%, transparent); border-radius:12px; padding:1.5rem 2rem;">
+        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+          <span style="padding:4px 12px; border-radius:999px; font-size:0.75rem; font-weight:600; background:color-mix(in srgb, ${typeColor} 20%, transparent); color:${typeColor};">${typeLabel}</span>
+          <span class="t-meta">Bezos 决策类型</span>
+        </div>
+        <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-muted); margin-bottom:0.5rem;">建议投入时间</div>
+        <div class="t-display" style="color:var(--accent); font-family:var(--font-mono); margin-bottom:1.5rem; font-size:2.5rem;">${timeBudget}</div>
+        <p style="color:var(--text-secondary); line-height:1.7;">${advice}</p>
+      </div>
+      ${overthinking ? `<div class="callout callout-warn" style="margin-top:1rem;"><div class="callout-label">警告</div><strong>你可能在过度决策。</strong>这是一个仅影响自己、可逆、短期的小事。如果你已经反复想了超过 30 分钟,<strong>停止调研,直接做</strong>。</div>` : ''}
+      <div style="background:var(--bg-subtle); border-radius:12px; padding:1.25rem; margin-top:1rem; font-size:0.875rem; color:var(--text-secondary); line-height:1.7;">
+        <p style="margin-bottom:0.5rem;"><span style="color:var(--data-1);">✓</span> <strong>对 Type 2:</strong> 用速度作为优势。70% 信息就动,边做边调。</p>
+        <p><span style="color:var(--warn);">⚠</span> <strong>对 Type 1:</strong> 慢比错重要。多视角咨询,等情绪平复 24 小时再行动。</p>
+      </div>
+    `;
+  }
+};
+
+/* ============================================================
+   TOOL: Opportunity Cost
+============================================================ */
+const OppCost = {
+  mounted: false,
+  s: { hours: 1, current: 'scroll', alt: 'study', years: 5 },
+  presets: [
+    { id: 'scroll', label: '刷短视频', g: 0 },
+    { id: 'study', label: '学习一项硬技能', g: 1.05 },
+    { id: 'exercise', label: '运动 / 健身', g: 1.04 },
+    { id: 'writing', label: '写作 / 输出', g: 1.06 },
+    { id: 'deep-work', label: '深度工作', g: 1.07 },
+  ],
+  mount() {
+    if (!this.mounted) {
+      makeSlider(document.getElementById('oc-hours-row'), this.s.hours, (v) => { this.s.hours = v; this.render(); }, (v) => v.toFixed(1));
+      const opts = this.presets.map((p) => `<option value="${p.id}">${p.label}</option>`).join('');
+      const cur = document.getElementById('oc-current'); cur.innerHTML = opts; cur.value = this.s.current;
+      const alt = document.getElementById('oc-alt'); alt.innerHTML = opts; alt.value = this.s.alt;
+      cur.addEventListener('change', (e) => { this.s.current = e.target.value; this.render(); });
+      alt.addEventListener('change', (e) => { this.s.alt = e.target.value; this.render(); });
+      makeSlider(document.getElementById('oc-years-row'), this.s.years, (v) => { this.s.years = v; this.render(); }, (v) => v.toString());
+      this.mounted = true;
+    }
+    this.render();
+  },
+  render() {
+    const { hours, current, alt, years } = this.s;
+    const annualHours = hours * 365;
+    const totalHours = annualHours * years;
+    const cur = this.presets.find((p) => p.id === current);
+    const al = this.presets.find((p) => p.id === alt);
+    const curVal = totalHours * cur.g;
+    const altVal = totalHours * Math.pow(al.g, years);
+    const ratio = altVal / Math.max(curVal, 1);
+    document.getElementById('oc-stats').innerHTML = `
+      <div class="stat-card"><div class="stat-label">投入总时长</div><div class="stat-value">${totalHours.toLocaleString()}<span style="font-size:0.875rem; color:var(--text-muted); margin-left:0.25rem;">小时</span></div></div>
+      <div class="stat-card"><div class="stat-label">机会成本倍数</div><div class="stat-value accent">${ratio.toFixed(2)}x</div></div>
+    `;
+    // chart - horizontal bar
+    const svg = document.getElementById('oc-chart');
+    clearSvg(svg);
+    const W = 600, H = 240;
+    const padL = 180, padR = 30, padT = 30, padB = 30;
+    const data = [
+      { name: '当前选: ' + cur.label, value: curVal, color: getColor('data-2') },
+      { name: '放弃了: ' + al.label, value: altVal, color: getColor('data-1') },
+    ];
+    const maxV = Math.max(...data.map((d) => d.value), 1);
+    const innerW = W - padL - padR;
+    const barH = 50;
+    data.forEach((d, i) => {
+      const y = padT + i * (barH + 24);
+      const w = (d.value / maxV) * innerW;
+      svg.appendChild(svgEl('rect', { x: padL, y, width: Math.max(2, w), height: barH, rx: 6, fill: d.color }));
+      const lab = svgEl('text', { class: 'axis-text', x: padL - 12, y: y + barH / 2 + 5, 'text-anchor': 'end', style: 'font-family:var(--font-sans);' });
+      lab.textContent = d.name;
+      svg.appendChild(lab);
+      const val = svgEl('text', { class: 'axis-text', x: padL + Math.max(2, w) + 8, y: y + barH / 2 + 5, fill: getColor('text-primary') });
+      val.textContent = fmtNum(d.value);
+      svg.appendChild(val);
+    });
+    let insight;
+    if (ratio > 2) {
+      insight = `你不是在"放松 ${hours} 小时" — 你是在用 ${years} 年后的 <strong>${al.label}</strong> 的复利,交换 <strong>${cur.label}</strong>。前者经过 ${years} 年的复利,价值是后者的 ${ratio.toFixed(2)} 倍。`;
+    } else if (ratio > 1) {
+      insight = `${years} 年后,你放弃的选项的复利价值,是当前选项的 ${ratio.toFixed(2)} 倍。差距还在扩大 — 时间是这个不平等的放大器。`;
+    } else {
+      insight = `这两个选项在你设定的参数下,机会成本相近。但请注意:这是数值上的近似,不代表你的"真实生活权重"。`;
+    }
+    document.getElementById('oc-insight').innerHTML = `<div class="callout callout-insight"><div class="callout-label">洞察</div>${insight}</div>`;
+  }
+};
+
+/* ============================================================
+   TOOL: Bias Self-test
+============================================================ */
+const BiasTest = {
+  mounted: false,
+  step: 0,
+  answers: [],
+  showExplain: false,
+  questions: [
+    { id: 'q1', bias: 'conjunction', biasLabel: '合取谬误', prompt: 'Linda 31 岁,单身,直率,聪明。她大学主修哲学,关心社会公正,曾参加反核游行。请问以下哪个描述更可能?', options: [
+      { label: 'Linda 是一名银行出纳员。', isBiased: false },
+      { label: 'Linda 是一名银行出纳员,并且是女权主义运动的积极分子。', isBiased: true }
+    ], explain: '这是经典的"合取谬误":两个条件同时成立的概率,永远不可能高于其中任何一个单独成立的概率。直觉认为"和描述更匹配的"更可能,但数学上必然相反。' },
+    { id: 'q2', bias: 'anchoring', biasLabel: '锚定效应', prompt: '你被告知去年某个国家的人口约为 6500 万。你估计今年的人口大概是多少?', options: [
+      { label: '大约 6500–7000 万', isBiased: true },
+      { label: '我无法在没有更多数据的情况下估计', isBiased: false }
+    ], explain: '"6500 万"作为锚点,会显著影响你的估计 — 即使你知道这只是去年数据。锚定效应在谈判、报价中极其常见。"对抗它"的方法是"主动设定自己的锚"。' },
+    { id: 'q3', bias: 'framing', biasLabel: '框架效应', prompt: '在两个手术方案中:A: 100 个患者中 90 个能存活;B: 100 个患者中 10 个会死亡。你更倾向哪个?', options: [
+      { label: 'A 听起来更好,选 A。', isBiased: true },
+      { label: '两个其实是同一件事,无法仅凭表述选择。', isBiased: false }
+    ], explain: 'A 和 B 在数学上完全等价,但表述方式 (90 存活 vs 10 死亡) 显著影响选择。这是"框架效应"。' },
+    { id: 'q4', bias: 'lossAversion', biasLabel: '损失厌恶', prompt: '选 A: 确定拿到 ¥800;选 B: 85% 概率拿到 ¥1000,15% 概率什么都没有。你选?', options: [
+      { label: 'A,确定的更稳。', isBiased: true },
+      { label: 'B,期望值是 ¥850 > ¥800,长期看更优。', isBiased: false }
+    ], explain: 'B 的期望值 = ¥850,数学上更优。但大多数人选 A,因为"损失厌恶":失去的痛苦 ≈ 得到同等数额的快乐 × 2。在重复性决策中 (投资、合作),长期总是 B 赢。' },
+    { id: 'q5', bias: 'availability', biasLabel: '可得性偏差', prompt: '在美国,以下哪种死因导致的死亡人数更多?', options: [
+      { label: '鲨鱼袭击,因为新闻里经常报道。', isBiased: true },
+      { label: '梯子摔落,虽然不常上新闻但实际更频繁。', isBiased: false }
+    ], explain: '梯子事故每年导致几百人死亡,鲨鱼袭击不到 1 人。但媒体报道频率与实际频率严重脱钩,人脑用"想得起来的频率"代替"真实频率"。' },
+  ],
+  mount() { this.step = 0; this.answers = []; this.showExplain = false; this.render(); },
+  render() {
+    const root = document.getElementById('bias-app');
+    if (this.step >= this.questions.length) { this.renderResult(root); return; }
+    const q = this.questions[this.step];
+    const lastAnswer = this.answers[this.answers.length - 1];
+    const showAns = this.showExplain && lastAnswer && lastAnswer.questionId === q.id;
+    root.innerHTML = `
+      <div style="max-width:48rem; margin:0 auto;">
+        <div class="t-meta" style="margin-bottom:0.5rem;">题 ${this.step + 1} / ${this.questions.length}</div>
+        <div style="height:4px; background:var(--bg-subtle); border-radius:2px; margin-bottom:2rem; overflow:hidden;"><div style="height:100%; background:var(--accent); width:${((this.step + (showAns ? 1 : 0)) / this.questions.length) * 100}%; transition:width 300ms;"></div></div>
+        <div class="card" style="margin-bottom:1.5rem;">
+          <p style="font-family:var(--font-serif); font-size:1.25rem; line-height:1.6; margin-bottom:1.5rem;">${q.prompt}</p>
+          <div style="display:flex; flex-direction:column; gap:0.75rem;" id="bias-options">
+            ${q.options.map((opt, i) => {
+              const isSelected = showAns && lastAnswer.selected === i;
+              const isCorrect = !opt.isBiased;
+              let style = 'border:2px solid var(--border); padding:1rem; border-radius:8px; background:transparent; text-align:left; font-family:inherit; cursor:' + (showAns ? 'default' : 'pointer') + '; transition:all 200ms; color:var(--text-primary); width:100%;';
+              if (showAns) {
+                if (isCorrect) style += ' border-color:var(--data-1); background:color-mix(in srgb, var(--data-1) 10%, transparent);';
+                else if (isSelected) style += ' border-color:var(--warn); background:color-mix(in srgb, var(--warn) 10%, transparent);';
+                else style += ' opacity:0.6;';
+              }
+              const icon = showAns ? (isCorrect ? '<span style="color:var(--data-1); margin-right:8px;">✓</span>' : (isSelected ? '<span style="color:var(--warn); margin-right:8px;">✗</span>' : '<span style="display:inline-block; width:1.2em;"></span>')) : '';
+              return `<button data-idx="${i}" style="${style}">${icon}${opt.label}</button>`;
+            }).join('')}
+          </div>
+        </div>
+        ${showAns ? `<div class="callout callout-insight">
+          <div class="callout-label">解释 · ${q.biasLabel}</div>
+          ${q.explain}
+          <div style="margin-top:1rem;"><button class="btn btn-primary" id="bias-next">${this.step === this.questions.length - 1 ? '看我的偏差地图' : '下一题'}</button></div>
+        </div>` : ''}
+      </div>
+    `;
+    if (!showAns) {
+      root.querySelectorAll('#bias-options button').forEach((b) => {
+        b.addEventListener('click', () => {
+          const idx = parseInt(b.dataset.idx, 10);
+          this.answers.push({ questionId: q.id, selected: idx, isBiased: q.options[idx].isBiased });
+          this.showExplain = true;
+          this.render();
+        });
+      });
+    } else {
+      document.getElementById('bias-next').addEventListener('click', () => {
+        this.showExplain = false;
+        this.step++;
+        if (this.step >= this.questions.length) {
+          const scores = {};
+          this.answers.forEach((a) => {
+            const qq = this.questions.find((x) => x.id === a.questionId);
+            if (qq) scores[qq.biasLabel] = (scores[qq.biasLabel] || 0) + (a.isBiased ? 1 : 0);
+          });
+          STATE.biasResults = { scores, takenAt: new Date().toISOString() };
+          notify();
+        }
+        this.render();
+      });
+    }
+  },
+  renderResult(root) {
+    const scores = {};
+    this.questions.forEach((q) => { scores[q.biasLabel] = 0; });
+    this.answers.forEach((a) => {
+      const qq = this.questions.find((x) => x.id === a.questionId);
+      if (qq && a.isBiased) scores[qq.biasLabel]++;
+    });
+    const totalBiased = this.answers.filter((a) => a.isBiased).length;
+    const labels = Object.keys(scores);
+    const values = labels.map((k) => scores[k]);
+    // radar chart
+    const W = 360, H = 320, cx = W / 2, cy = H / 2 + 10, r = 110;
+    let svgInner = '';
+    // grid
+    for (let g = 1; g <= 4; g++) {
+      const rr = (r * g) / 4;
+      let pts = '';
+      labels.forEach((_, i) => {
+        const a = -Math.PI / 2 + (i / labels.length) * Math.PI * 2;
+        pts += (cx + Math.cos(a) * rr) + ',' + (cy + Math.sin(a) * rr) + ' ';
+      });
+      svgInner += `<polygon points="${pts}" fill="none" stroke="var(--border)" />`;
+    }
+    // axis lines
+    labels.forEach((_, i) => {
+      const a = -Math.PI / 2 + (i / labels.length) * Math.PI * 2;
+      svgInner += `<line x1="${cx}" y1="${cy}" x2="${cx + Math.cos(a) * r}" y2="${cy + Math.sin(a) * r}" stroke="var(--border)" />`;
+    });
+    // data
+    let pts = '';
+    labels.forEach((_, i) => {
+      const a = -Math.PI / 2 + (i / labels.length) * Math.PI * 2;
+      const rr = (values[i] / 1) * r;
+      pts += (cx + Math.cos(a) * rr) + ',' + (cy + Math.sin(a) * rr) + ' ';
+    });
+    svgInner += `<polygon points="${pts}" fill="${getColor('accent')}" fill-opacity="0.4" stroke="${getColor('accent')}" stroke-width="2" />`;
+    // labels
+    labels.forEach((lab, i) => {
+      const a = -Math.PI / 2 + (i / labels.length) * Math.PI * 2;
+      const lx = cx + Math.cos(a) * (r + 22);
+      const ly = cy + Math.sin(a) * (r + 22);
+      svgInner += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" style="font-size:11px; fill:var(--text-secondary); font-family:var(--font-sans);">${lab}</text>`;
+    });
+    let nextHint;
+    const top = labels.reduce((a, b) => (scores[a] > scores[b] ? a : b));
+    if (totalBiased > 0) {
+      nextHint = `你在「${top}」上较为敏感。在做谈判、定价、风险判断时,主动停下,问自己:"我是不是被这个偏差影响了?"`;
+    } else {
+      nextHint = '保持对所有偏差的警觉,在做重大判断前主动叫醒系统 2。';
+    }
+    let comment;
+    if (totalBiased <= 1) comment = '你识别偏差的能力不错。但要警惕:在这种结构化测试里识别 ≠ 在真实生活中识别。';
+    else if (totalBiased <= 3) comment = '中位水平 — 这意味着你和大多数人一样。重要的是:已知偏差的存在,你才有机会"叫醒系统 2"。';
+    else comment = '你和经典实验里的大多数人一样,深受系统 1 的"代笔"影响。这不是问题 — 知道这一点,本身就是认知升级的开始。';
+    root.innerHTML = `
+      <div class="tool-grid split">
+        <div class="card"><svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto;">${svgInner}</svg></div>
+        <div>
+          <div class="t-meta" style="margin-bottom:0.5rem;">你的偏差地图</div>
+          <h3 class="t-h2" style="margin-bottom:0.75rem;">5 题中,你被偏差影响了 <span class="text-accent">${totalBiased}</span> 次</h3>
+          <p class="text-secondary" style="line-height:1.7; margin-bottom:1.5rem;">${comment}</p>
+          <div style="background:var(--bg-subtle); padding:1.25rem; border-radius:12px; font-size:0.875rem; line-height:1.7; color:var(--text-secondary);">
+            <p style="font-weight:500; color:var(--text-primary); margin-bottom:0.5rem;">下一步建议</p>
+            <p>${nextHint}</p>
+          </div>
+          <button class="btn btn-secondary" id="bias-restart" style="margin-top:1rem;">重新测试</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('bias-restart').addEventListener('click', () => this.mount());
+  }
+};
+
+/* ============================================================
+   TOOL: Life Choice Simulator
+============================================================ */
+const LifeChoice = {
+  mounted: false,
+  s: { years: 5, aMean: 20, aVol: 15, aRuin: 2, bMean: 8, bVol: 5, bRuin: 0, seed: 0 },
+  mount() {
+    if (!this.mounted) {
+      this._sl = {
+        years: makeSlider(document.getElementById('lc-years-row'), this.s.years, (v) => { this.s.years = v; this.render(); }, (v) => v.toString()),
+        aMean: makeSlider(document.getElementById('lc-aMean-row'), this.s.aMean, (v) => { this.s.aMean = v; this.render(); }, (v) => v.toString()),
+        aVol: makeSlider(document.getElementById('lc-aVol-row'), this.s.aVol, (v) => { this.s.aVol = v; this.render(); }, (v) => v.toString()),
+        aRuin: makeSlider(document.getElementById('lc-aRuin-row'), this.s.aRuin, (v) => { this.s.aRuin = v; this.render(); }, (v) => v.toString()),
+        bMean: makeSlider(document.getElementById('lc-bMean-row'), this.s.bMean, (v) => { this.s.bMean = v; this.render(); }, (v) => v.toString()),
+        bVol: makeSlider(document.getElementById('lc-bVol-row'), this.s.bVol, (v) => { this.s.bVol = v; this.render(); }, (v) => v.toString()),
+        bRuin: makeSlider(document.getElementById('lc-bRuin-row'), this.s.bRuin, (v) => { this.s.bRuin = v; this.render(); }, (v) => v.toString()),
+      };
+      document.getElementById('lc-reroll').addEventListener('click', () => { this.s.seed++; this.render(); });
+      this.mounted = true;
+    }
+    this.render();
+  },
+  simulate(cfg, count) {
+    const result = [];
+    for (let i = 0; i < count; i++) {
+      const path = [100];
+      let v = 100, ruined = false;
+      for (let y = 0; y < this.s.years; y++) {
+        if (ruined) { path.push(0); continue; }
+        if (Math.random() < cfg.ruin / this.s.years) { v = 0; ruined = true; }
+        else {
+          const u1 = Math.max(Math.random(), 1e-9), u2 = Math.random();
+          const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+          v = Math.max(0, v * (1 + cfg.mean + cfg.vol * z));
+        }
+        path.push(v);
+      }
+      result.push(path);
+    }
+    return result;
+  },
+  summarize(paths) {
+    const finals = paths.map((p) => p[p.length - 1]).sort((a, b) => a - b);
+    const ruin = finals.filter((v) => v === 0).length;
+    return {
+      p5: finals[Math.floor(finals.length * 0.05)],
+      p50: finals[Math.floor(finals.length * 0.5)],
+      p95: finals[Math.floor(finals.length * 0.95)],
+      mean: finals.reduce((a, b) => a + b, 0) / finals.length,
+      ruinRate: ruin / finals.length,
+    };
+  },
+  render() {
+    const a = this.simulate({ mean: this.s.aMean / 100, vol: this.s.aVol / 100, ruin: this.s.aRuin / 100 }, 100);
+    const b = this.simulate({ mean: this.s.bMean / 100, vol: this.s.bVol / 100, ruin: this.s.bRuin / 100 }, 100);
+    const sa = this.summarize(a), sb = this.summarize(b);
+    const statBlock = (label, s, color) => `
+      <div class="stat-card">
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+          <span style="width:10px; height:10px; border-radius:50%; background:${color};"></span>
+          <span style="font-weight:600;">${label}</span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; font-size:0.75rem;">
+          <div><div class="stat-label">期望值</div><div style="font-family:var(--font-mono); font-weight:600;">${fmtNum(s.mean)}</div></div>
+          <div><div class="stat-label">中位</div><div style="font-family:var(--font-mono); font-weight:600;">${fmtNum(s.p50)}</div></div>
+          <div><div class="stat-label">最差 5%</div><div style="font-family:var(--font-mono); font-weight:600; color:var(--warn);">${fmtNum(s.p5)}</div></div>
+          <div><div class="stat-label">最好 5%</div><div style="font-family:var(--font-mono); font-weight:600; color:var(--data-1);">${fmtNum(s.p95)}</div></div>
+          ${s.ruinRate > 0 ? `<div style="grid-column:span 2;"><div class="stat-label">出局率</div><div style="font-family:var(--font-mono); font-weight:600; color:var(--warn);">${(s.ruinRate * 100).toFixed(1)}%</div></div>` : ''}
+        </div>
+      </div>
+    `;
+    document.getElementById('lc-stats').innerHTML = statBlock('选项 A', sa, getColor('data-1')) + statBlock('选项 B', sb, getColor('data-2'));
+    // chart
+    const svg = document.getElementById('lc-chart');
+    clearSvg(svg);
+    const allFinals = a.flat().concat(b.flat());
+    const yMax = Math.max(...allFinals);
+    const A = drawAxis(svg, { width: 600, height: 360, xMin: 0, xMax: this.s.years, yMin: 0, yMax: yMax * 1.05, xFormat: (v) => v.toFixed(0) + 'y', yFormat: (v) => fmtNum(v, 0) });
+    const drawPaths = (paths, color) => {
+      paths.forEach((path) => {
+        let d = '';
+        path.forEach((v, i) => {
+          const x = A.xToPx(i), y = A.yToPx(v);
+          d += (i === 0 ? 'M' : 'L') + x + ' ' + y;
+        });
+        svg.appendChild(svgEl('path', { d, fill: 'none', stroke: color, 'stroke-width': 1, 'stroke-opacity': 0.18 }));
+      });
+    };
+    drawPaths(a, getColor('data-1'));
+    drawPaths(b, getColor('data-2'));
+    // insight
+    const aBetter = sa.mean > sb.mean;
+    const bSafer = sb.p5 > sa.p5;
+    let insight;
+    if (aBetter && bSafer) {
+      insight = `A 的期望收益更高 (${fmtNum(sa.mean)} vs ${fmtNum(sb.mean)}),但 B 在最坏 5% 下更安全 (${fmtNum(sb.p5)} vs ${fmtNum(sa.p5)})。这是典型的"决策质量与单次结果分离"的场景。`;
+    } else if (aBetter) {
+      insight = `A 在平均值上强于 B。但在 ${(sa.ruinRate * 100).toFixed(0)}% 的"平行宇宙"中,A 完全归零 — 这是平均值掩盖不了的尾部风险。`;
+    } else {
+      insight = `B 在期望与安全性上都不输给 A。这通常意味着 A 的"高回报"是被"高风险 + 毁灭可能性"换来的。`;
+    }
+    document.getElementById('lc-insight').innerHTML = `<div class="callout callout-insight"><div class="callout-label">洞察</div>${insight}</div>`;
+  }
+};
+
+/* ============================================================
+   TOOL: Long-term Feedback
+============================================================ */
+const LongTermFB = {
+  mounted: false,
+  s: { activity: 'skill', hours: 1 },
+  activities: [
+    { id: 'fitness', label: '健身', subjFn: (t) => 80 * (1 - Math.exp(-t / 0.3)) - 30 * Math.exp(-Math.pow((t - 1.2) / 0.6, 2)), objFn: (t) => 100 * Math.pow(t / 5, 1.7) },
+    { id: 'skill', label: '学习一项技能', subjFn: (t) => 80 * (1 - Math.exp(-t / 0.3)) - 30 * Math.exp(-Math.pow((t - 1.2) / 0.6, 2)), objFn: (t) => 100 * Math.pow(t / 5, 1.7) },
+    { id: 'writing', label: '写作 / 输出', subjFn: (t) => 30 * (1 - Math.exp(-t / 0.8)) + 5 * Math.sin(t * 4), objFn: (t) => 100 * Math.pow(t / 5, 1.7) },
+    { id: 'investing', label: '投资', subjFn: (t) => 25 + 10 * Math.sin(t * 3), objFn: (t) => 100 * (Math.pow(1.5, t) - 1) / (Math.pow(1.5, 5) - 1) },
+    { id: 'relationship', label: '建立关系', subjFn: (t) => 30 * (1 - Math.exp(-t / 0.8)) + 5 * Math.sin(t * 4), objFn: (t) => Math.max(0, 100 * (1 / (1 + Math.exp(-2 * (t - 2.5))))) },
+  ],
+  mount() {
+    if (!this.mounted) {
+      const sel = document.getElementById('lt-activity');
+      sel.innerHTML = this.activities.map((a) => `<option value="${a.id}">${a.label}</option>`).join('');
+      sel.value = this.s.activity;
+      sel.addEventListener('change', (e) => { this.s.activity = e.target.value; this.render(); });
+      makeSlider(document.getElementById('lt-hours-row'), this.s.hours, (v) => { this.s.hours = v; this.render(); }, (v) => v.toFixed(2));
+      this.mounted = true;
+    }
+    this.render();
+  },
+  render() {
+    const a = this.activities.find((x) => x.id === this.s.activity);
+    const factor = this.s.hours;
+    const points = [];
+    for (let i = 0; i <= 60; i++) {
+      const t = (i / 60) * 5;
+      points.push({ year: t, subjective: Math.max(0, a.subjFn(t) * Math.sqrt(factor)), objective: Math.max(0, a.objFn(t) * factor) });
+    }
+    const finalSubj = points[points.length - 1].subjective;
+    const finalObj = points[points.length - 1].objective;
+    document.getElementById('lt-stats').innerHTML = `
+      <div class="stat-card"><div class="stat-label">5 年后 · 客观水平</div><div class="stat-value" style="color:var(--data-2);">${finalObj.toFixed(0)}</div></div>
+      <div class="stat-card"><div class="stat-label">5 年后 · 主观感受</div><div class="stat-value" style="color:var(--data-1);">${finalSubj.toFixed(0)}</div></div>
+    `;
+    const svg = document.getElementById('lt-chart');
+    clearSvg(svg);
+    const yMax = Math.max(...points.flatMap((p) => [p.subjective, p.objective]));
+    const A = drawAxis(svg, { width: 600, height: 360, xMin: 0, xMax: 5, yMin: 0, yMax: yMax * 1.1, xTicks: 5, xFormat: (v) => v.toFixed(0) + 'y', yFormat: (v) => v.toFixed(0) });
+    // drop points
+    [{ x: 0.25, label: '3 个月' }, { x: 1, label: '1 年' }, { x: 3, label: '3 年' }].forEach((dp) => {
+      const x = A.xToPx(dp.x);
+      svg.appendChild(svgEl('line', { x1: x, x2: x, y1: A.padT, y2: 360 - A.padB, stroke: getColor('warn'), 'stroke-dasharray': '3 3' }));
+      const t = svgEl('text', { x, y: A.padT - 4, 'text-anchor': 'middle', style: 'font-size:10px; fill:' + getColor('warn') + ';' });
+      t.textContent = dp.label;
+      svg.appendChild(t);
+    });
+    const path = (key, color, dash = null) => {
+      let d = '';
+      points.forEach((p, i) => {
+        const x = A.xToPx(p.year), y = A.yToPx(p[key]);
+        d += (i === 0 ? 'M' : 'L') + x + ' ' + y;
+      });
+      const el = svgEl('path', { d, fill: 'none', stroke: color, 'stroke-width': 2.5 });
+      if (dash) el.setAttribute('stroke-dasharray', dash);
+      svg.appendChild(el);
+    };
+    path('subjective', getColor('data-1'));
+    path('objective', getColor('data-2'), '5 3');
+    document.getElementById('lt-legend').innerHTML = `
+      <span class="legend-item"><span class="legend-swatch" style="background:${getColor('data-1')};"></span>主观感受</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:${getColor('data-2')};"></span>客观成果</span>
+    `;
+    document.getElementById('lt-insight').innerHTML = `<div class="callout callout-insight"><div class="callout-label">洞察</div>注意 3 个月、1 年、3 年这三个红色标记 — 这些是放弃高发期。它们的共同特征是:<strong>主观感受低于客观水平</strong>。人是被"感受"驱动的,所以"感觉没进步"会让你想停下,而你的真实水平此时正在静悄悄地积累。</div>`;
+  }
+};
+
+/* ============================================================
+   TOOL: Ruin Risk Simulator
+============================================================ */
+const RuinRisk = {
+  mounted: false,
+  s: { winRate: 60, oddsRatio: 2, strategy: 'half-kelly', rounds: 100, seed: 0 },
+  mount() {
+    if (!this.mounted) {
+      makeSlider(document.getElementById('rr-win-row'), this.s.winRate, (v) => { this.s.winRate = v; this.render(); }, (v) => v.toString());
+      makeSlider(document.getElementById('rr-odds-row'), this.s.oddsRatio, (v) => { this.s.oddsRatio = v; this.render(); }, (v) => v.toFixed(1));
+      makeSlider(document.getElementById('rr-rounds-row'), this.s.rounds, (v) => { this.s.rounds = v; this.render(); }, (v) => v.toString());
+      makeSegmented(document.getElementById('rr-strategy'), [
+        { value: 'all-in', label: '全押' }, { value: 'kelly', label: '凯利' }, { value: 'half-kelly', label: '半凯利' }, { value: 'quarter-kelly', label: '1/4 凯利' }
+      ], this.s.strategy, (v) => { this.s.strategy = v; this.render(); });
+      document.getElementById('rr-reroll').addEventListener('click', () => { this.s.seed++; this.render(); });
+      this.mounted = true;
+    }
+    this.render();
+  },
+  kelly(p, b) { return (b * p - (1 - p)) / b; },
+  fraction(strategy, k) {
+    if (strategy === 'all-in') return 1;
+    if (strategy === 'kelly') return Math.max(0, k);
+    if (strategy === 'half-kelly') return Math.max(0, k / 2);
+    return Math.max(0, k / 4);
+  },
+  simulate(p, b, frac, rounds) {
+    const paths = [];
+    for (let i = 0; i < 100; i++) {
+      const path = [100];
+      let v = 100;
+      for (let r = 0; r < rounds; r++) {
+        if (v <= 1) { path.push(0); continue; }
+        const win = Math.random() < p;
+        const stake = v * frac;
+        v = win ? v - stake + stake * (1 + b) : v - stake;
+        v = Math.max(0, v);
+        path.push(v);
+      }
+      paths.push(path);
+    }
+    return paths;
+  },
+  render() {
+    const p = this.s.winRate / 100;
+    const b = this.s.oddsRatio;
+    const k = this.kelly(p, b);
+    const frac = this.fraction(this.s.strategy, k);
+    const ev = p * b - (1 - p);
+    const paths = this.simulate(p, b, frac, this.s.rounds);
+    const finals = paths.map((path) => path[path.length - 1]);
+    const ruinCount = finals.filter((v) => v < 1).length;
+    const sorted = [...finals].sort((a, b) => a - b);
+    const median = sorted[Math.floor(sorted.length / 2)];
+    const ruinRate = ruinCount / 100;
+    document.getElementById('rr-stats').innerHTML = `
+      <div class="stat-card"><div class="stat-label">单局期望值</div><div class="stat-value ${ev > 0 ? 'accent' : 'warn'}">${(ev * 100).toFixed(1)}%</div></div>
+      <div class="stat-card"><div class="stat-label">凯利最优仓位</div><div class="stat-value">${(k * 100).toFixed(1)}%</div></div>
+      <div class="stat-card"><div class="stat-label">实际仓位</div><div class="stat-value">${(frac * 100).toFixed(1)}%</div></div>
+      <div class="stat-card"><div class="stat-label">出局率</div><div class="stat-value ${ruinRate > 0.05 ? 'warn' : ''}">${(ruinRate * 100).toFixed(0)}%</div></div>
+    `;
+    const svg = document.getElementById('rr-chart');
+    clearSvg(svg);
+    const allYs = paths.flat().filter((v) => v > 0);
+    let yMax = Math.max(...allYs, 100);
+    yMax = Math.min(yMax, 1e8);
+    // log scale for big ranges
+    const useLog = yMax > 1000;
+    const yScale = useLog ? Math.log10(yMax + 1) : yMax;
+    const A = drawAxis(svg, {
+      width: 600, height: 360, xMin: 0, xMax: this.s.rounds,
+      yMin: 0, yMax: yScale * 1.05,
+      xFormat: (v) => v.toFixed(0),
+      yFormat: useLog ? (v) => fmtNum(Math.pow(10, v) - 1, 0) : (v) => fmtNum(v, 0)
+    });
+    paths.forEach((path) => {
+      let d = '';
+      path.forEach((v, i) => {
+        const yVal = useLog ? Math.log10(v + 1) : v;
+        const x = A.xToPx(i), y = A.yToPx(yVal);
+        d += (i === 0 ? 'M' : 'L') + x + ' ' + y;
+      });
+      svg.appendChild(svgEl('path', { d, fill: 'none', stroke: getColor('data-1'), 'stroke-width': 1, 'stroke-opacity': 0.18 }));
+    });
+    // reference line at 100
+    const refY = useLog ? Math.log10(101) : 100;
+    svg.appendChild(svgEl('line', { x1: A.padL, x2: 600 - A.padR, y1: A.yToPx(refY), y2: A.yToPx(refY), stroke: getColor('text-muted'), 'stroke-dasharray': '3 3' }));
+    let insight;
+    if (ev <= 0) {
+      insight = `<strong>这是一个负期望值游戏。</strong>单局期望值 = ${(ev * 100).toFixed(2)}%,长期下来一定输 — 仓位策略只能延缓出局,不能阻止它。`;
+    } else if (this.s.strategy === 'all-in') {
+      insight = `期望值正 (${(ev * 100).toFixed(1)}%),但全押让你 <strong style="color:var(--warn);">${(ruinRate * 100).toFixed(0)}% 概率出局</strong>。这就是巴菲特说的"不要丢失什么是无法承担丢失的"的反例 — 数学上有利可图,实际上长期出局。`;
+    } else if (this.s.strategy === 'kelly' && k > 0.4) {
+      insight = `凯利仓位 ${(k * 100).toFixed(0)}% 已经偏激进。现实中胜率与盈亏比是<em>估计</em>,估错一点就放大风险。这是为什么大多数顶级投资者用半凯利甚至 1/4 凯利。`;
+    } else {
+      insight = `${this.s.strategy} 策略下,出局率 ${(ruinRate * 100).toFixed(0)}%,中位数 ${fmtNum(median)}。即使期望值为正,仓位是决定"能否长期生存"的关键变量。`;
+    }
+    document.getElementById('rr-insight').innerHTML = `<div class="callout ${ruinRate > 0.3 ? 'callout-warn' : 'callout-insight'}"><div class="callout-label">${ruinRate > 0.3 ? '警告' : '洞察'}</div>${insight}</div>`;
+  }
+};
+
+/* ============================================================
+   TOOL: Decision Journal
+============================================================ */
+const DecisionJournalUI = {
+  mounted: false,
+  s: { prob: 60 },
+  mount() {
+    if (!this.mounted) {
+      this._slProb = makeSlider(document.getElementById('dj-prob-row'), this.s.prob, (v) => { this.s.prob = v; }, (v) => v.toString());
+      document.getElementById('dj-submit').addEventListener('click', () => this.submit());
+      this.mounted = true;
+    }
+    this.renderList();
+  },
+  submit() {
+    const decision = document.getElementById('dj-decision').value.trim();
+    const outcome = document.getElementById('dj-outcome').value.trim();
+    const reasoning = document.getElementById('dj-reasoning').value.trim();
+    const unknowns = document.getElementById('dj-unknowns').value.trim();
+    if (decision.length < 6 || outcome.length < 6 || reasoning.length < 6) {
+      const m = document.getElementById('dj-msg');
+      m.hidden = false;
+      m.innerHTML = '<div class="callout callout-warn"><div class="callout-label">提示</div>请填写决策、预测结果、依据这三项 (每项至少 6 字)。</div>';
+      return;
+    }
+    const reviewAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
+    STATE.decisionJournal.unshift({
+      id: uid(), decision, predictedOutcome: outcome, predictedProbability: this.s.prob,
+      reasoning, unknowns, createdAt: new Date().toISOString(), reviewAt,
+    });
+    notify();
+    document.getElementById('dj-decision').value = '';
+    document.getElementById('dj-outcome').value = '';
+    document.getElementById('dj-reasoning').value = '';
+    document.getElementById('dj-unknowns').value = '';
+    this.s.prob = 60;
+    this._slProb.setValue(60);
+    const m = document.getElementById('dj-msg');
+    m.hidden = false;
+    m.innerHTML = '<div class="callout callout-insight"><div class="callout-label">已保存 ✓</div>强烈建议导出 .ics 日历提醒 — 浏览器通知不可靠,日历最可靠。点击下方任一日志条目右侧的"日历提醒"按钮即可。</div>';
+    setTimeout(() => { m.hidden = true; }, 6000);
+    this.renderList();
+  },
+  renderList() {
+    document.getElementById('dj-count').textContent = STATE.decisionJournal.length;
+    const list = document.getElementById('dj-list');
+    if (STATE.decisionJournal.length === 0) {
+      list.innerHTML = '<div class="empty">还没有日志。第一份会出现在这里。</div>';
+      return;
+    }
+    list.innerHTML = STATE.decisionJournal.map((d) => {
+      const reviewDate = new Date(d.reviewAt);
+      const isPast = reviewDate < new Date();
+      return `
+        <div class="dj-list-item">
+          <div class="dj-list-head">
+            <p class="dj-decision">${escapeHtml(d.decision)}</p>
+            <button class="icon-btn" data-del-dj="${d.id}" title="删除" style="width:28px; height:28px;"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="width:16px; height:16px;"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
+          </div>
+          <div style="font-size:0.8125rem; color:var(--text-secondary); margin-bottom:0.5rem; line-height:1.6;"><strong>预测:</strong> ${escapeHtml(d.predictedOutcome)} <span class="text-accent" style="font-family:var(--font-mono);">(${d.predictedProbability}%)</span></div>
+          <div class="dj-meta">
+            <span>记于 ${new Date(d.createdAt).toLocaleDateString('zh-CN')}</span>
+            <span style="margin-left:auto; ${isPast ? 'color:var(--accent); font-weight:600;' : ''}">${isPast ? '可以复盘了' : '复盘于 ' + reviewDate.toLocaleDateString('zh-CN')}</span>
+            <button class="icon-btn" data-ics-dj="${d.id}" title="下载 .ics 日历提醒" style="width:28px; height:28px; color:var(--data-1);"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="width:16px; height:16px;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></button>
+          </div>
+        </div>
+      `;
+    }).join('');
+    list.querySelectorAll('[data-del-dj]').forEach((b) => b.addEventListener('click', () => {
+      const id = b.dataset.delDj;
+      STATE.decisionJournal = STATE.decisionJournal.filter((d) => d.id !== id);
+      notify();
+      this.renderList();
+    }));
+    list.querySelectorAll('[data-ics-dj]').forEach((b) => b.addEventListener('click', () => {
+      const id = b.dataset.icsDj;
+      const d = STATE.decisionJournal.find((x) => x.id === id);
+      if (d) downloadICS(d);
+    }));
+  }
+};
+
+function downloadICS(d) {
+  const dt = new Date(d.reviewAt);
+  const fmt = (x) => x.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  const dtStart = fmt(dt);
+  const dtEnd = fmt(new Date(dt.getTime() + 30 * 60 * 1000));
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//ren-sheng//decision-journal//ZH', 'BEGIN:VEVENT',
+    'UID:' + Date.now() + '@ren-sheng', 'DTSTAMP:' + fmt(new Date()),
+    'DTSTART:' + dtStart, 'DTEND:' + dtEnd,
+    'SUMMARY:【人生算法】决策复盘 — ' + d.decision.slice(0, 40),
+    'DESCRIPTION:回到「我的清单」复盘当时的决策日志,看看实际结果与你预测的差距。',
+    'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'decision-review-' + d.reviewAt.slice(0, 10) + '.ics';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* ============================================================
+   LIBRARY
+============================================================ */
+const Library = {
+  mounted: false,
+  filters: { type: 'all', module: 'all', lang: 'all' },
+  mount() {
+    if (!this.mounted) { this.renderFilters(); this.mounted = true; }
+    this.renderList();
+  },
+  renderFilters() {
+    const types = ['all'].concat(Object.keys(TYPE_LABELS));
+    const f = document.getElementById('libFilters');
+    f.innerHTML = `
+      <div class="lib-filter-row" data-key="type"><span>类型:</span>${types.map((t) => `<button class="lib-chip ${this.filters.type === t ? 'active' : ''}" data-v="${t}">${t === 'all' ? '全部' : TYPE_LABELS[t]}</button>`).join('')}</div>
+      <div class="lib-filter-row" data-key="module"><span>模块:</span><button class="lib-chip ${this.filters.module === 'all' ? 'active' : ''}" data-v="all">全部</button>${MODULES.map((m) => `<button class="lib-chip ${this.filters.module === m.slug ? 'active' : ''}" data-v="${m.slug}">${m.title}</button>`).join('')}</div>
+      <div class="lib-filter-row" data-key="lang"><span>语言:</span><button class="lib-chip ${this.filters.lang === 'all' ? 'active' : ''}" data-v="all">全部</button><button class="lib-chip ${this.filters.lang === 'zh' ? 'active' : ''}" data-v="zh">中文</button><button class="lib-chip ${this.filters.lang === 'en' ? 'active' : ''}" data-v="en">英文</button></div>
+    `;
+    f.querySelectorAll('.lib-filter-row').forEach((row) => {
+      row.querySelectorAll('button').forEach((b) => {
+        b.addEventListener('click', () => {
+          this.filters[row.dataset.key] = b.dataset.v;
+          this.renderFilters(); this.renderList();
+        });
+      });
+    });
+  },
+  renderList() {
+    const filtered = LIBRARY.filter((it) => {
+      if (this.filters.type !== 'all' && it.type !== this.filters.type) return false;
+      if (this.filters.module !== 'all' && !it.modules.includes(this.filters.module)) return false;
+      if (this.filters.lang !== 'all' && it.lang !== this.filters.lang) return false;
+      return true;
+    });
+    document.getElementById('libCount').textContent = '共 ' + filtered.length + ' 项';
+    const list = document.getElementById('libList');
+    if (filtered.length === 0) {
+      list.innerHTML = '<div class="empty">没有匹配的资源</div>';
+      return;
+    }
+    list.innerHTML = filtered.map((it) => {
+      const hasLink = !!it.url;
+      const modNames = it.modules.map((s) => MODULES.find((m) => m.slug === s)?.title).filter(Boolean);
+      const card = `
+        <div class="lib-card-meta">
+          <span class="pill">${TYPE_LABELS[it.type]}</span>
+          ${it.year ? '<span style="color:var(--text-muted); font-family:var(--font-mono);">' + it.year + '</span>' : ''}
+          ${it.dur ? '<span style="color:var(--text-muted);">· ' + it.dur + '</span>' : ''}
+        </div>
+        <h3>${escapeHtml(it.title)}${hasLink ? ' <span style="color:var(--text-muted);">↗</span>' : ''}</h3>
+        <p class="author">${escapeHtml(it.author)}</p>
+        <p class="hook">${escapeHtml(it.hook)}</p>
+        <div class="tags">
+          ${modNames.map((n) => `<span class="mod">#${n}</span>`).join('')}
+          ${it.tags.map((t) => `<span class="tag">#${t}</span>`).join('')}
+        </div>
+      `;
+      if (hasLink) {
+        return `<a class="lib-card has-link" href="${it.url}" target="_blank" rel="noopener noreferrer" style="display:block; text-decoration:none; color:inherit;">${card}</a>`;
+      }
+      return `<div class="lib-card">${card}</div>`;
+    }).join('');
+  }
+};
+
+/* ============================================================
+   THINKERS
+============================================================ */
+const Thinkers = {
+  mountList() {
+    const grid = document.getElementById('thinkersGrid');
+    grid.innerHTML = THINKERS.map((t) => {
+      const modNames = t.mods.map((s) => MODULES.find((m) => m.slug === s)?.title).filter(Boolean);
+      return `
+        <button class="thinker-card" data-thinker="${t.slug}">
+          <div class="thinker-head">
+            <div class="avatar" style="background:${t.accent};">${t.initials}</div>
+            <div style="flex:1; min-width:0;">
+              <h3>${t.name}</h3>
+              <p class="role">${t.role}</p>
+            </div>
+            <span style="color:var(--text-muted);">↗</span>
+          </div>
+          <p class="one-line">${t.oneLine}</p>
+          <div class="thinker-tags">${modNames.map((n) => '<span>#' + n + '</span>').join('')}</div>
+        </button>
+      `;
+    }).join('');
+    grid.querySelectorAll('[data-thinker]').forEach((b) => b.addEventListener('click', () => {
+      this.mountDetail(b.dataset.thinker);
+      navigate('thinker-detail');
+    }));
+  },
+  mountDetail(slug) {
+    const t = THINKERS.find((x) => x.slug === slug);
+    if (!t) return;
+    const modules = t.mods.map((s) => MODULES.find((m) => m.slug === s)).filter(Boolean);
+    document.getElementById('thinkerDetail').innerHTML = `
+      <div style="padding-top:1rem;"><a class="crumbs" data-nav="thinkers" style="cursor:pointer;">← 所有思想家</a></div>
+      <div class="thinker-detail-head">
+        <div class="avatar" style="background:${t.accent};">${t.initials}</div>
+        <div>
+          <h1>${t.name} <span class="en">${t.en}</span></h1>
+          <p class="role">${t.role}</p>
+          <p class="t-meta">${t.era}</p>
+        </div>
+      </div>
+      <div style="margin:2rem 0;"><p class="t-quote" style="max-width:42rem;">${t.oneLine}</p></div>
+      <section style="margin-bottom:2rem;">
+        <h2 class="t-h2" style="margin-bottom:1rem;">核心思想</h2>
+        <div class="thinker-ideas">
+          ${t.ideas.map((idea, i) => `<div class="thinker-idea"><span class="num">${String(i + 1).padStart(2, '0')}</span><p>${idea}</p></div>`).join('')}
+        </div>
+      </section>
+      <section style="margin-bottom:2rem;">
+        <div class="quote-card">
+          <blockquote>${escapeHtml(t.quote)}</blockquote>
+          <div class="quote-meta">
+            <div class="avatar" style="background:${t.accent};">${t.initials}</div>
+            <div><div class="quote-author">${t.name}</div><div class="quote-role">${t.role}</div></div>
+            <span class="quote-source">— ${t.source}</span>
+          </div>
+        </div>
+      </section>
+      <section style="margin-bottom:2rem;">
+        <h2 class="t-h2" style="margin-bottom:1rem;">代表作</h2>
+        <ul class="thinker-works">${t.works.map((w) => '<li>' + w + '</li>').join('')}</ul>
+      </section>
+      <section>
+        <h2 class="t-h2" style="margin-bottom:1rem;">相关模块</h2>
+        <div style="display:grid; gap:0.75rem;">
+          ${modules.map((m) => `<button class="card card-hover" data-nav="m-${m.slug}" style="text-align:left; font-family:inherit; cursor:pointer;"><div class="t-meta">模块 ${String(m.num).padStart(2, '0')}</div><h3 class="t-h3">${m.title}</h3><p class="text-secondary" style="font-size:0.875rem;">${m.hook}</p></button>`).join('')}
+        </div>
+      </section>
+    `;
+  }
+};
+
+/* ============================================================
+   MY LIST
+============================================================ */
+const MyList = {
+  mount() {
+    document.getElementById('myToolbar').innerHTML = `
+      <button class="btn btn-primary" id="exp-md">导出 Markdown 手册</button>
+      <button class="btn btn-secondary" id="exp-json">导出 JSON 备份</button>
+      <button class="btn btn-secondary" id="imp-json">从 JSON 导入</button>
+      <input type="file" id="imp-file" accept=".json,application/json" hidden>
+      <button class="btn btn-ghost" id="reset-data" style="margin-left:auto; color:var(--warn);">清空所有数据</button>
+    `;
+    document.getElementById('exp-md').addEventListener('click', exportMarkdown);
+    document.getElementById('exp-json').addEventListener('click', exportJSON);
+    document.getElementById('imp-json').addEventListener('click', () => document.getElementById('imp-file').click());
+    document.getElementById('imp-file').addEventListener('change', importJSON);
+    document.getElementById('reset-data').addEventListener('click', resetData);
+    this.renderContent();
+  },
+  renderContent() {
+    const has = STATE.completedModules.length > 0 || STATE.reflections.length > 0 || STATE.decisionJournal.length > 0 || STATE.biasResults;
+    let html = '';
+    if (!has) {
+      html += '<div class="empty"><p style="margin-bottom:1rem;">还没有任何数据。</p><button class="btn btn-primary" data-nav="m-cognition">从首页开始</button></div>';
+      document.getElementById('myContent').innerHTML = html;
+      return;
+    }
+    if (STATE.completedModules.length > 0) {
+      html += '<section style="margin-bottom:3rem;"><h2 class="t-h2" style="margin-bottom:1rem;">学习进度</h2><div class="modules-progress">';
+      MODULES.forEach((m) => {
+        const done = STATE.completedModules.includes(m.slug);
+        html += `<div class="module-pill ${done ? 'done' : ''}"><div class="num">${String(m.num).padStart(2, '0')}</div><div class="name">${m.title}</div></div>`;
+      });
+      html += '</div></section>';
+    }
+    if (STATE.reflections.length > 0) {
+      html += `<section style="margin-bottom:3rem;"><h2 class="t-h2" style="margin-bottom:1rem;">我的反思 <span style="color:var(--text-muted); font-size:1rem; font-weight:400;">(${STATE.reflections.length})</span></h2><div>`;
+      STATE.reflections.forEach((r) => {
+        const m = MODULES.find((mm) => mm.slug === r.moduleSlug);
+        html += `<div class="reflection-item">
+          <div class="meta"><span class="pill">${m ? m.title : r.moduleSlug}</span><span style="color:var(--text-muted);">${new Date(r.createdAt).toLocaleDateString('zh-CN')}</span></div>
+          <p class="question">${escapeHtml(r.question)}</p>
+          <p class="answer">${escapeHtml(r.answer)}</p>
+        </div>`;
+      });
+      html += '</div></section>';
+    }
+    if (STATE.decisionJournal.length > 0) {
+      html += `<section style="margin-bottom:3rem;"><h2 class="t-h2" style="margin-bottom:1rem;">决策日志 <span style="color:var(--text-muted); font-size:1rem; font-weight:400;">(${STATE.decisionJournal.length})</span></h2><div>`;
+      STATE.decisionJournal.forEach((d) => {
+        const reviewAt = new Date(d.reviewAt);
+        const isPast = reviewAt < new Date();
+        html += `<div class="reflection-item">
+          <div style="display:flex; justify-content:space-between; gap:0.75rem; margin-bottom:0.75rem;">
+            <h3 style="font-weight:500; font-size:1rem;">${escapeHtml(d.decision)}</h3>
+            <span style="font-size:0.75rem; ${isPast ? 'color:var(--accent);' : 'color:var(--text-muted);'}">${isPast ? '可复盘' : reviewAt.toLocaleDateString('zh-CN')}</span>
+          </div>
+          <div style="font-size:0.875rem; color:var(--text-secondary); line-height:1.7;">
+            <p><strong style="color:var(--text-primary);">预测:</strong> ${escapeHtml(d.predictedOutcome)} <span class="text-accent" style="font-family:var(--font-mono);">(${d.predictedProbability}%)</span></p>
+            <p><strong style="color:var(--text-primary);">依据:</strong> ${escapeHtml(d.reasoning)}</p>
+            ${d.unknowns ? `<p><strong style="color:var(--text-primary);">未知:</strong> ${escapeHtml(d.unknowns)}</p>` : ''}
+          </div>
+        </div>`;
+      });
+      html += '</div></section>';
+    }
+    document.getElementById('myContent').innerHTML = html;
+  }
+};
+
+function exportMarkdown() {
+  const date = new Date().toLocaleDateString('zh-CN');
+  let md = '# 我的人生算法清单\n\n> 导出时间: ' + date + '\n\n';
+  md += '## 学习进度\n\n已完成 ' + STATE.completedModules.length + ' / ' + MODULES.length + ' 个模块:\n\n';
+  STATE.completedModules.forEach((s) => {
+    const m = MODULES.find((m) => m.slug === s);
+    if (m) md += '- ✓ ' + m.title + ' (' + m.en + ')\n';
+  });
+  md += '\n';
+  if (STATE.reflections.length > 0) {
+    md += '## 我的反思 (' + STATE.reflections.length + ' 条)\n\n';
+    STATE.reflections.forEach((r) => {
+      const m = MODULES.find((mm) => mm.slug === r.moduleSlug);
+      md += '### ' + (m ? m.title : r.moduleSlug) + ' · ' + new Date(r.createdAt).toLocaleDateString('zh-CN') + '\n\n';
+      md += '**问题:** ' + r.question + '\n\n**我的答案:**\n\n' + r.answer + '\n\n';
+    });
+  }
+  if (STATE.decisionJournal.length > 0) {
+    md += '## 我的决策日志 (' + STATE.decisionJournal.length + ' 份)\n\n';
+    STATE.decisionJournal.forEach((d) => {
+      md += '### ' + d.decision + '\n\n';
+      md += '- 记录于: ' + new Date(d.createdAt).toLocaleDateString('zh-CN') + '\n';
+      md += '- 复盘日: ' + new Date(d.reviewAt).toLocaleDateString('zh-CN') + '\n';
+      md += '- **预测结果 (' + d.predictedProbability + '%):** ' + d.predictedOutcome + '\n';
+      md += '- **依据:** ' + d.reasoning + '\n';
+      if (d.unknowns) md += '- **未知:** ' + d.unknowns + '\n';
+      md += '\n';
+    });
+  }
+  if (STATE.biasResults) {
+    md += '## 偏差测试结果\n\n测试时间: ' + new Date(STATE.biasResults.takenAt).toLocaleDateString('zh-CN') + '\n\n';
+    Object.entries(STATE.biasResults.scores).forEach(([k, v]) => { md += '- ' + k + ': 中招 ' + v + ' 次\n'; });
+    md += '\n';
+  }
+  download('人生算法清单-' + new Date().toISOString().slice(0, 10) + '.md', md, 'text/markdown;charset=utf-8');
+}
+
+function exportJSON() {
+  download('人生算法-备份-' + new Date().toISOString().slice(0, 10) + '.json', JSON.stringify(STATE, null, 2), 'application/json;charset=utf-8');
+}
+
+function importJSON(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const parsed = JSON.parse(reader.result);
+      if (parsed.version !== 1) throw new Error('版本不兼容');
+      STATE = Object.assign(defaultState(), parsed);
+      notify();
+      MyList.renderContent();
+      alert('✓ 导入成功');
+    } catch (err) {
+      alert('× 文件无效或版本不兼容: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function resetData() {
+  if (!confirm('确认清空所有数据?这个操作无法撤销。')) return;
+  STATE = defaultState();
+  notify();
+  MyList.renderContent();
+}
+
+function download(filename, content, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+function rerenderAll() {
+  renderHome();
+  renderProgress();
+  // re-render module completion buttons
+  document.querySelectorAll('[data-complete-module]').forEach((btn) => {
+    const slug = btn.dataset.completeModule;
+    const done = STATE.completedModules.includes(slug);
+    btn.disabled = done;
+    if (done) { btn.textContent = '✓ 已完成'; btn.classList.remove('btn-primary'); btn.classList.add('btn-secondary'); }
+  });
+}
+
+subscribe(rerenderAll);
+
+renderNavMain();
+renderHome();
+renderProgress();
+renderModuleNavs();
+setupReflections();
+setupModuleCompletion();
+
+// Initial route from hash
+const initial = location.hash.slice(1);
+if (initial && document.querySelector(`[data-page="${initial}"]`)) {
+  navigate(initial);
+}
+
+window.addEventListener('hashchange', () => {
+  const t = location.hash.slice(1) || 'home';
+  if (document.querySelector(`[data-page="${t}"]`)) navigate(t);
+});
+</script>
+
+</body>
+</html>
